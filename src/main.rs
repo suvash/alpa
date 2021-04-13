@@ -57,7 +57,7 @@ fn evaluator(ast: AST) -> Option<AST> {
 
 fn printer(ast: Option<AST>) -> () {
     match ast {
-        Some(ast) => println!("{:?}", ast),
+        Some(ast) => println!("{:#?}", ast),
         None => eprintln!("Nothing to print"),
     }
 }

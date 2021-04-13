@@ -28,7 +28,7 @@ pub enum Error {
     DivideByZero,
 }
 
-pub type AST = Vec<Expr>;
+pub type AST = Expr;
 
 pub fn parse(source: &str) -> Option<AST> {
     match parse_result(source) {
@@ -44,11 +44,15 @@ fn parse_result(source: &str) -> Result<AST, PError<Rule>> {
     let parse_tree_pair = AlpaParser::parse(Rule::alpa, source)?.next().unwrap();
 
     let parsed_ast = match parse_tree_pair.as_rule() {
-        Rule::program => parse_expressions(parse_tree_pair),
+        Rule::program => parse_s_expression(parse_tree_pair),
         _ => unreachable!(),
     };
 
     Ok(parsed_ast)
+}
+
+fn parse_s_expression(pair: Pair<Rule>) -> Expr {
+    Expr::SExpr(parse_expressions(pair))
 }
 
 fn parse_expressions(pair: Pair<Rule>) -> Vec<Expr> {
@@ -65,10 +69,6 @@ fn parse_expressions(pair: Pair<Rule>) -> Vec<Expr> {
     }
 
     exprs
-}
-
-fn parse_s_expression(pair: Pair<Rule>) -> Expr {
-    Expr::SExpr(parse_expressions(pair))
 }
 
 fn parse_expression(pair: Pair<Rule>) -> Expr {
@@ -108,7 +108,7 @@ mod tests {
     #[test]
     fn test_parse_success() {
         let input = "+ २ ५ (* ४ ५)";
-        let expected = vec![
+        let expected = Expr::SExpr(vec![
             Expr::Sym(Symbol::Add),
             Expr::Int(2),
             Expr::Int(5),
@@ -117,7 +117,7 @@ mod tests {
                 Expr::Int(4),
                 Expr::Int(5),
             ]),
-        ];
+        ]);
         assert_eq!(parse(input), Some(expected));
     }
 
