@@ -12,7 +12,7 @@ subtract = { "-" }
 multiply = { "*" }
 divide   = { "/" }
 
-number = @{ negative? ~ '0'..'9'+ }
+number = @{ negative? ~ '०'..'९'+ }
 negative = @{ "-" }
 
 

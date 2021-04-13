@@ -2,6 +2,8 @@ use pest::error::Error as PError;
 use pest::iterators::Pair;
 use pest::Parser;
 
+use crate::sankhya::Sankhya;
+
 #[derive(pest_derive::Parser)]
 #[grammar = "grammar.pest"]
 struct AlpaParser;
@@ -81,8 +83,8 @@ fn parse_expression(pair: Pair<Rule>) -> Expr {
 }
 
 fn parse_number(pair: Pair<Rule>) -> Expr {
-    let sankhya = pair.as_str().parse::<i32>().unwrap();
-    Expr::Int(sankhya)
+    let sankhya = pair.as_str().parse::<Sankhya>().unwrap();
+    Expr::Int(sankhya.0)
 }
 
 fn parse_symbol(pair: Pair<Rule>) -> Expr {
@@ -105,7 +107,7 @@ mod tests {
 
     #[test]
     fn test_parse_success() {
-        let input = "+ 2 5 (* 4 5)";
+        let input = "+ २ ५ (* ४ ५)";
         let expected = vec![
             Expr::Sym(Symbol::Add),
             Expr::Int(2),
@@ -121,7 +123,7 @@ mod tests {
 
     #[test]
     fn test_parse_failure() {
-        let input = "random stuff";
+        let input = "+ 2 5 (* 4 5)";
         assert_eq!(parse(input), None);
     }
 }
