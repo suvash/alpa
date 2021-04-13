@@ -1,6 +1,8 @@
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
 
+use alpa::parser::{self, AST};
+
 fn main() {
     print_banner();
     repl();
@@ -25,7 +27,7 @@ fn repl() {
         match readline {
             Ok(line) => {
                 rl.add_history_entry(line.as_str());
-                let evaled = evaluator(&line);
+                let evaled = read(&line).and_then(evaluator);
                 printer(evaled);
             }
             Err(ReadlineError::Interrupted) => {
@@ -45,10 +47,17 @@ fn repl() {
     rl.save_history(&history_filename).unwrap();
 }
 
-fn evaluator(line: &str) -> &str {
-    line
+fn read(line: &str) -> Option<AST> {
+    parser::parse(line)
 }
 
-fn printer(line: &str) -> () {
-    println!("{}", line);
+fn evaluator(ast: AST) -> Option<AST> {
+    Some(ast)
+}
+
+fn printer(ast: Option<AST>) -> () {
+    match ast {
+        Some(ast) => println!("{:?}", ast),
+        None => eprintln!("Nothing to print"),
+    }
 }

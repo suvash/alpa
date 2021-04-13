@@ -1,0 +1,19 @@
+alpa = _{SOI ~ program ~ EOI }
+
+program = { expr* }
+
+expr = { number | symbol | sexpr }
+
+sexpr = { "(" ~ expr* ~ ")"}
+
+symbol = { add | subtract | multiply | divide }
+add      = { "+" }
+subtract = { "-" }
+multiply = { "*" }
+divide   = { "/" }
+
+number = @{ negative? ~ '0'..'9'+ }
+negative = @{ "-" }
+
+
+WHITESPACE = _{ " " | "\t" }
