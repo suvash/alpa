@@ -2,7 +2,7 @@ use pest::error::Error as PError;
 use pest::iterators::Pair;
 use pest::Parser;
 
-use crate::sankhya::Sankhya;
+use crate::ntypes::Sankhya;
 use crate::types::{Expr, Operation, Symbol};
 
 #[derive(pest_derive::Parser)]

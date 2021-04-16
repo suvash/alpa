@@ -1,4 +1,4 @@
 pub mod evaluator;
+pub mod ntypes;
 pub mod parser;
-pub mod sankhya;
 pub mod types;

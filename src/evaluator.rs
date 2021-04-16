@@ -1,4 +1,4 @@
-use crate::sankhya::Sankhya;
+use crate::ntypes::Sankhya;
 use crate::types::{Expr, Operation, Symbol};
 
 pub fn eval_expr(expr: &Expr) -> Expr {

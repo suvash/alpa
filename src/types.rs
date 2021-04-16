@@ -1,4 +1,4 @@
-use crate::sankhya::Sankhya;
+use crate::ntypes::Sankhya;
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum Operation {
