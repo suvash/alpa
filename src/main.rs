@@ -51,7 +51,7 @@ fn read_eval_print(line: &str) -> () {
     match parser::parse(line) {
         None => eprintln!("Could not read"),
         Some(expr) => {
-            println!("{:?}", &expr);
+            println!("{}", &expr);
 
             let evaled = evaluator::eval_expr(&expr);
             println!("{:?}", &evaled);
