@@ -1,40 +1,53 @@
 use crate::ntypes::Sankhya;
-use crate::types::{Expr, Operation, Symbol};
+use crate::types::{Error, Expr, Operation, Symbol};
 
-pub fn eval_expr(expr: &Expr) -> Expr {
+pub fn eval(expr: &Expr) -> Option<Expr> {
+    match eval_expr(expr) {
+        Ok(evaled) => Some(evaled),
+        Err(e) => {
+            eprintln!("{:?}", e);
+            None
+        }
+    }
+}
+
+fn eval_expr(expr: &Expr) -> Result<Expr, Error> {
     match expr {
-        Expr::Num(_) => expr.clone(),
-        Expr::Sym(_) => expr.clone(),
+        Expr::Num(_) => Ok(expr.clone()),
+        Expr::Sym(_) => Ok(expr.clone()),
         Expr::SExpr(sexpr) => match sexpr.len() {
-            0 => expr.clone(),
+            0 => Ok(expr.clone()),
             1 => eval_expr(&sexpr[0]),
             _ => {
-                let oper = &*sexpr[0];
+                let oper = eval_expr(&sexpr[0])?;
                 let first = eval_expr(&sexpr[1]);
-                let rest = &sexpr[2..];
 
-                rest.iter()
-                    .fold(first, |a, b| match (a, eval_expr(&b), oper) {
+                sexpr[2..]
+                    .iter()
+                    .fold(first, |a, b| match (a?, eval_expr(b)?, &oper) {
                         (
                             Expr::Num(Sankhya(x)),
                             Expr::Num(Sankhya(y)),
                             Expr::Sym(Symbol::Operation(Operation::Add)),
-                        ) => Expr::Num(Sankhya(x + y)),
+                        ) => Ok(Expr::Num(Sankhya(x + y))),
                         (
                             Expr::Num(Sankhya(x)),
                             Expr::Num(Sankhya(y)),
                             Expr::Sym(Symbol::Operation(Operation::Subtract)),
-                        ) => Expr::Num(Sankhya(x - y)),
+                        ) => Ok(Expr::Num(Sankhya(x - y))),
                         (
                             Expr::Num(Sankhya(x)),
                             Expr::Num(Sankhya(y)),
                             Expr::Sym(Symbol::Operation(Operation::Multiply)),
-                        ) => Expr::Num(Sankhya(x * y)),
+                        ) => Ok(Expr::Num(Sankhya(x * y))),
                         (
                             Expr::Num(Sankhya(x)),
                             Expr::Num(Sankhya(y)),
                             Expr::Sym(Symbol::Operation(Operation::Divide)),
-                        ) => Expr::Num(Sankhya(x / y)),
+                        ) => match y {
+                            0 => Err(Error::DivideByZero),
+                            _ => Ok(Expr::Num(Sankhya(x / y))),
+                        },
 
                         _ => unreachable!(),
                     })
@@ -53,7 +66,6 @@ mod tests {
             Box::new(Expr::Sym(Symbol::Operation(Operation::Add))),
             Box::new(Expr::Num(Sankhya(2))),
             Box::new(Expr::Num(Sankhya(-5))),
-            Box::new(Expr::SExpr(vec![])),
             Box::new(Expr::SExpr(vec![
                 Box::new(Expr::Sym(Symbol::Operation(Operation::Multiply))),
                 Box::new(Expr::Num(Sankhya(4))),
@@ -70,6 +82,6 @@ mod tests {
                 Box::new(Expr::Num(Sankhya(5))),
             ])),
         ]);
-        assert_eq!(eval_expr(&input), Expr::Num(Sankhya(6)));
+        assert_eq!(eval(&input), Some(Expr::Num(Sankhya(6))));
     }
 }

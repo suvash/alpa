@@ -53,9 +53,13 @@ fn read_eval_print(line: &str) -> () {
         Some(expr) => {
             println!("{}", &expr);
 
-            let evaled = evaluator::eval_expr(&expr);
-            println!("{:?}", &evaled);
-            println!("{}", &evaled);
+            match evaluator::eval(&expr) {
+                None => eprintln!("Could not eval"),
+                Some(expr) => {
+                    println!("{:?}", &expr);
+                    println!("{}", &expr);
+                }
+            }
         }
     }
 }
