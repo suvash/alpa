@@ -12,8 +12,7 @@ subtract = { "-" }
 multiply = { "*" }
 divide   = { "/" }
 
-number = @{ negative? ~ '०'..'९'+ }
-negative = @{ "-" }
+number = @{ ( "+" | "-" )? ~ '०'..'९'+ }
 
 
 WHITESPACE = _{ " " | "\t" }

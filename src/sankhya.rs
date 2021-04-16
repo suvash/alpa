@@ -42,6 +42,7 @@ impl FromStr for Sankhya {
             .graphemes(true)
             .into_iter()
             .map(|n| match n {
+                "+" => "+",
                 "-" => "-",
                 "०" => "0",
                 "१" => "1",
