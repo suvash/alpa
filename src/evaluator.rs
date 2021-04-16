@@ -1,30 +1,20 @@
 use crate::ntypes::Sankhya;
 use crate::types::{Error, Expr, Operation, Symbol};
 
-pub fn eval(expr: &Expr) -> Option<Expr> {
-    match eval_expr(expr) {
-        Ok(evaled) => Some(evaled),
-        Err(e) => {
-            eprintln!("{:?}", e);
-            None
-        }
-    }
-}
-
-fn eval_expr(expr: &Expr) -> Result<Expr, Error> {
+pub fn eval(expr: &Expr) -> Result<Expr, Error> {
     match expr {
         Expr::Num(_) => Ok(expr.clone()),
         Expr::Sym(_) => Ok(expr.clone()),
         Expr::SExpr(sexpr) => match sexpr.len() {
             0 => Ok(expr.clone()),
-            1 => eval_expr(&sexpr[0]),
+            1 => eval(&sexpr[0]),
             _ => {
-                let oper = eval_expr(&sexpr[0])?;
-                let first = eval_expr(&sexpr[1]);
+                let oper = eval(&sexpr[0])?;
+                let first = eval(&sexpr[1]);
 
                 sexpr[2..]
                     .iter()
-                    .fold(first, |a, b| match (a?, eval_expr(b)?, &oper) {
+                    .fold(first, |a, b| match (a?, eval(b)?, &oper) {
                         (
                             Expr::Num(Sankhya(x)),
                             Expr::Num(Sankhya(y)),
@@ -82,6 +72,6 @@ mod tests {
                 Box::new(Expr::Num(Sankhya(5))),
             ])),
         ]);
-        assert_eq!(eval(&input), Some(Expr::Num(Sankhya(6))));
+        assert_eq!(eval(&input), Ok(Expr::Num(Sankhya(6))));
     }
 }

@@ -9,17 +9,7 @@ use crate::types::{Expr, Operation, Symbol};
 #[grammar = "grammar.pest"]
 struct AlpaParser;
 
-pub fn parse(source: &str) -> Option<Expr> {
-    match parse_result(source) {
-        Ok(parsed) => Some(parsed),
-        Err(e) => {
-            eprintln!("{}", e);
-            None
-        }
-    }
-}
-
-fn parse_result(source: &str) -> Result<Expr, PError<Rule>> {
+pub fn parse(source: &str) -> Result<Expr, PError<Rule>> {
     let parse_tree_pair = AlpaParser::parse(Rule::alpa, source)?.next().unwrap();
 
     let parsed_expr = match parse_tree_pair.as_rule() {
@@ -107,12 +97,6 @@ mod tests {
                 Box::new(Expr::Num(Sankhya(5))),
             ])),
         ]);
-        assert_eq!(parse(input), Some(expected));
-    }
-
-    #[test]
-    fn test_parse_failure() {
-        let input = "+ 2 5 (* 4 5)";
-        assert_eq!(parse(input), None);
+        assert_eq!(parse(input), Ok(expected));
     }
 }

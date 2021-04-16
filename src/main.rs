@@ -49,13 +49,20 @@ fn repl() {
 
 fn read_eval_print(line: &str) -> () {
     match parser::parse(line) {
-        None => eprintln!("Could not read"),
-        Some(expr) => {
+        Err(e) => {
+            eprintln!("Could not parse");
+            eprintln!("{:?}", e);
+        }
+        Ok(expr) => {
             println!("{}", &expr);
 
             match evaluator::eval(&expr) {
-                None => eprintln!("Could not eval"),
-                Some(expr) => {
+                Err(e) => {
+                    eprintln!("Could not eval");
+                    eprintln!("{:?}", e);
+                }
+
+                Ok(expr) => {
                     println!("{:?}", &expr);
                     println!("{}", &expr);
                 }
