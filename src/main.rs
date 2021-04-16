@@ -3,7 +3,6 @@ use rustyline::Editor;
 
 use alpa::evaluator;
 use alpa::parser;
-use alpa::types::Expr;
 
 fn main() {
     print_banner();
@@ -29,12 +28,7 @@ fn repl() {
         match readline {
             Ok(line) => {
                 rl.add_history_entry(line.as_str());
-                // let evaled = read(&line).and_then(evaluator);
-                // printer(evaled);
-                let parsed = read(&line).unwrap();
-                let evaled = evaluator(&parsed);
-                println!("{:?}", &parsed);
-                println!("{:?}", &evaled);
+                read_eval_print(&line);
             }
             Err(ReadlineError::Interrupted) => {
                 eprintln!("CTRL-C");
@@ -53,17 +47,15 @@ fn repl() {
     rl.save_history(&history_filename).unwrap();
 }
 
-fn read(line: &str) -> Option<Expr> {
-    parser::parse(line)
-}
+fn read_eval_print(line: &str) -> () {
+    match parser::parse(line) {
+        None => eprintln!("Could not read"),
+        Some(expr) => {
+            println!("{:?}", &expr);
 
-fn evaluator(expr: &Expr) -> Expr {
-    evaluator::eval_expr(expr)
+            let evaled = evaluator::eval_expr(&expr);
+            println!("{:?}", &evaled);
+            println!("{}", &evaled);
+        }
+    }
 }
-
-// fn printer(val: Option<Sankhya>) -> () {
-//     match val {
-//         Some(val) => println!("{}", val),
-//         None => eprintln!("Nothing to print"),
-//     }
-// }

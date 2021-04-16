@@ -62,8 +62,7 @@ fn parse_expression(pair: Pair<Rule>) -> Expr {
 }
 
 fn parse_number(pair: Pair<Rule>) -> Expr {
-    let sankhya = pair.as_str().parse::<Sankhya>().unwrap();
-    Expr::Int(sankhya.0)
+    Expr::Num(pair.as_str().parse::<Sankhya>().unwrap())
 }
 
 fn parse_symbol(pair: Pair<Rule>) -> Expr {
@@ -86,25 +85,26 @@ mod tests {
 
     #[test]
     fn test_parse_success() {
-        let input = "+ +२ -५ (* ४ ५) (/ -१० २) (- -१ ५)";
+        let input = "+ +२ -५ () (* ४ ५) (/ -१० २) (- -१ ५)";
         let expected = Expr::SExpr(vec![
             Box::new(Expr::Sym(Symbol::Operation(Operation::Add))),
-            Box::new(Expr::Int(2)),
-            Box::new(Expr::Int(-5)),
+            Box::new(Expr::Num(Sankhya(2))),
+            Box::new(Expr::Num(Sankhya(-5))),
+            Box::new(Expr::SExpr(vec![])),
             Box::new(Expr::SExpr(vec![
                 Box::new(Expr::Sym(Symbol::Operation(Operation::Multiply))),
-                Box::new(Expr::Int(4)),
-                Box::new(Expr::Int(5)),
+                Box::new(Expr::Num(Sankhya(4))),
+                Box::new(Expr::Num(Sankhya(5))),
             ])),
             Box::new(Expr::SExpr(vec![
                 Box::new(Expr::Sym(Symbol::Operation(Operation::Divide))),
-                Box::new(Expr::Int(-10)),
-                Box::new(Expr::Int(2)),
+                Box::new(Expr::Num(Sankhya(-10))),
+                Box::new(Expr::Num(Sankhya(2))),
             ])),
             Box::new(Expr::SExpr(vec![
                 Box::new(Expr::Sym(Symbol::Operation(Operation::Subtract))),
-                Box::new(Expr::Int(-1)),
-                Box::new(Expr::Int(5)),
+                Box::new(Expr::Num(Sankhya(-1))),
+                Box::new(Expr::Num(Sankhya(5))),
             ])),
         ]);
         assert_eq!(parse(input), Some(expected));

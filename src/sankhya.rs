@@ -4,7 +4,7 @@ use std::str::FromStr;
 
 use unicode_segmentation::UnicodeSegmentation;
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Sankhya(pub i32);
 
 impl fmt::Display for Sankhya {
