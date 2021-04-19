@@ -57,5 +57,7 @@ impl fmt::Display for Expr {
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Error {
-    DivideByZero,
+    DivideByZero(Sankhya, Sankhya),
+    NotANumberOperation(Expr),
+    NotANumber(Expr),
 }
