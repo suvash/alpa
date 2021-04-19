@@ -24,6 +24,10 @@ fn parse_s_expression(pair: Pair<Rule>) -> Expr {
     Expr::SExpr(parse_expressions(pair))
 }
 
+fn parse_q_expression(pair: Pair<Rule>) -> Expr {
+    Expr::QExpr(parse_expressions(pair))
+}
+
 fn parse_expressions(pair: Pair<Rule>) -> Vec<Box<Expr>> {
     let mut exprs: Vec<Box<Expr>> = vec![];
 
@@ -47,6 +51,7 @@ fn parse_expression(pair: Pair<Rule>) -> Expr {
         Rule::number => parse_number(pair),
         Rule::symbol => parse_symbol(pair),
         Rule::sexpr => parse_s_expression(pair),
+        Rule::qexpr => parse_q_expression(pair),
         _ => unreachable!(),
     }
 }

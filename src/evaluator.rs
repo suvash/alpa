@@ -59,6 +59,7 @@ pub fn eval(expr: &Expr) -> Result<Expr, Error> {
                 }
             }
         },
+	Expr::QExpr(_) => Ok(expr.clone()),
     }
 }
 

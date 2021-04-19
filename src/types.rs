@@ -31,6 +31,7 @@ pub enum Expr {
     Num(Sankhya),
     Sym(Symbol),
     SExpr(Vec<Box<Expr>>),
+    QExpr(Vec<Box<Expr>>),
 }
 
 impl fmt::Display for Expr {
@@ -45,6 +46,17 @@ impl fmt::Display for Expr {
                     f,
                     "({})",
                     sexpr
+                        .iter()
+                        .map(|e| format!("{}", e))
+                        .collect::<Vec<String>>()
+                        .join(" ")
+                )
+            }
+            Expr::QExpr(qexpr) => {
+                write!(
+                    f,
+                    "'({})",
+                    qexpr
                         .iter()
                         .map(|e| format!("{}", e))
                         .collect::<Vec<String>>()

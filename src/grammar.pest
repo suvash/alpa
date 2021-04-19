@@ -2,9 +2,11 @@ alpa = _{SOI ~ program ~ EOI }
 
 program = { expr* }
 
-expr = { number | symbol | sexpr }
+expr = { number | symbol | sexpr | qexpr }
 
 sexpr = { "(" ~ expr* ~ ")"}
+
+qexpr = { "'(" ~ expr* ~ ")"}
 
 symbol = { add | subtract | multiply | divide }
 add      = { "+" }
