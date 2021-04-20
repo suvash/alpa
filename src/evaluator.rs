@@ -57,10 +57,15 @@ fn qexpr_rest(qexpr: &Vec<Box<Expr>>) -> Result<Expr, Error> {
     }
 }
 
+fn qexpr_eval(qexpr: &Vec<Box<Expr>>) -> Result<Expr, Error> {
+    eval(&Expr::SExpr(qexpr.to_vec()))
+}
+
 fn qexpr_oper(oper: &QExprOp, qexpr: &Vec<Box<Expr>>) -> Result<Expr, Error> {
     match oper {
         QExprOp::First => qexpr_first(qexpr),
         QExprOp::Rest => qexpr_rest(qexpr),
+        QExprOp::Eval => qexpr_eval(qexpr),
     }
 }
 

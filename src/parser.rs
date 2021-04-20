@@ -91,6 +91,7 @@ fn parse_qexpr_op(pair: Pair<Rule>) -> Expr {
     let op = match pair.as_rule() {
         Rule::first => QExprOp::First,
         Rule::rest => QExprOp::Rest,
+        Rule::eval => QExprOp::Eval,
         _ => unreachable!(),
     };
 

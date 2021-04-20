@@ -14,9 +14,10 @@ symbol = { number_op | qexpr_op | sexpr_op }
     subtract = { "-" }
     multiply = { "*" }
     divide   = { "/" }
-  qexpr_op = { first | rest }
+  qexpr_op = { first | rest | eval }
     first = { "पहिलो" }
     rest = { "बाँकी" }
+    eval = { "बिस्तार" }
   sexpr_op = { list }
     list = { "सुची" }
 
