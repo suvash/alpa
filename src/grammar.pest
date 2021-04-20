@@ -18,8 +18,8 @@ symbol = { number_op | qexpr_op | sexpr_op }
     first = { "पहिलो" }
     rest = { "बाँकी" }
     eval = { "बिस्तार" }
-  sexpr_op = { list }
-    list = { "सुची" }
+  sexpr_op = { quote }
+    quote = { "उद्धरण" }
 
 number = @{ ( "+" | "-" )? ~ '०'..'९'+ }
 

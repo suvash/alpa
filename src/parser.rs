@@ -102,7 +102,7 @@ fn parse_sexpr_op(pair: Pair<Rule>) -> Expr {
     let pair = pair.into_inner().next().unwrap();
 
     let op = match pair.as_rule() {
-        Rule::list => SExprOp::List,
+        Rule::quote => SExprOp::Quote,
         _ => unreachable!(),
     };
 

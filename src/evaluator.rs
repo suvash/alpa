@@ -82,13 +82,13 @@ fn qexpr_oper_args(oper: &QExprOp, args: &[Box<Expr>]) -> Result<Expr, Error> {
     }
 }
 
-fn sexpr_list(sexpr: &Vec<Box<Expr>>) -> Result<Expr, Error> {
+fn sexpr_quote(sexpr: &Vec<Box<Expr>>) -> Result<Expr, Error> {
     Ok(Expr::QExpr(sexpr.clone()))
 }
 
 fn sexpr_oper(oper: &SExprOp, sexpr: &Vec<Box<Expr>>) -> Result<Expr, Error> {
     match oper {
-        SExprOp::List => sexpr_list(sexpr),
+        SExprOp::Quote => sexpr_quote(sexpr),
     }
 }
 

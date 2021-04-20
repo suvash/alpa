@@ -40,13 +40,13 @@ impl fmt::Display for QExprOp {
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum SExprOp {
-    List,
+    Quote,
 }
 
 impl fmt::Display for SExprOp {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            SExprOp::List => write!(f, "सुची"),
+            SExprOp::Quote => write!(f, "उद्धरण"),
         }
     }
 }
