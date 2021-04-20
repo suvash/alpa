@@ -81,18 +81,14 @@ pub fn eval(expr: &Expr) -> Result<Expr, Error> {
     match expr {
         Expr::Num(_) => Ok(expr.clone()),
         Expr::Sym(_) => Ok(expr.clone()),
-        Expr::SExpr(sexpr) => match sexpr.len() {
-            0 => Ok(expr.clone()),
-            1 => eval(&sexpr[0]),
-            _ => {
-                let first = eval(&sexpr[0])?;
-
-                match &first {
-                    Expr::Sym(Symbol::NumberOp(op)) => num_oper_args(&op, &sexpr[1..]),
-                    Expr::Sym(Symbol::QExprOp(op)) => qexpr_oper_args(&op, &sexpr[1..]),
-                    x => Err(Error::InvalidOp(x.clone())),
-                }
-            }
+        Expr::SExpr(sexpr) => match &**sexpr {
+            [] => Ok(expr.clone()),
+            [expr] => eval(expr),
+            [oper, args @ ..] => match &**oper {
+                Expr::Sym(Symbol::NumberOp(op)) => num_oper_args(&op, args),
+                Expr::Sym(Symbol::QExprOp(op)) => qexpr_oper_args(&op, args),
+                x => Err(Error::InvalidOp(x.clone())),
+            },
         },
         Expr::QExpr(_) => Ok(expr.clone()),
     }
