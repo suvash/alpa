@@ -85,7 +85,7 @@ fn qexpr_oper_args(oper: &QExprOp, args: &[Box<Expr>]) -> Result<Expr, Error> {
 fn qexprs_join(qexprs: &[Box<Expr>]) -> Result<Expr, Error> {
     qexprs
         .iter()
-        .fold(Ok(Expr::QExpr(vec![])), |a, b| match (a?, *b.clone()) {
+        .fold(Ok(Expr::QExpr(vec![])), |a, b| match (a?, eval(b)?) {
             (Expr::QExpr(mut x), Expr::QExpr(y)) => {
                 x.extend(y);
                 Ok(Expr::QExpr(x))
