@@ -44,22 +44,16 @@ fn num_oper_args(oper: &NumberOp, args: &[Box<Expr>]) -> Result<Expr, Error> {
 }
 
 fn qexpr_first(qexpr: &Vec<Box<Expr>>) -> Result<Expr, Error> {
-    match qexpr.is_empty() {
-        true => Ok(Expr::SExpr(vec![])),
-        false => {
-            let first = qexpr.first().unwrap().clone();
-            Ok(*first)
-        }
+    match qexpr.split_first() {
+        Some((first, _)) => Ok(*first.clone()),
+        None => Err(Error::EmptyQExpr(Expr::QExpr(qexpr.clone()))),
     }
 }
 
 fn qexpr_rest(qexpr: &Vec<Box<Expr>>) -> Result<Expr, Error> {
-    match qexpr.len() {
-        0 | 1 => Ok(Expr::SExpr(vec![])),
-        _ => {
-            let (_, rest) = qexpr.split_first().unwrap();
-            Ok(Expr::QExpr(rest.to_vec()))
-        }
+    match qexpr.split_first() {
+        Some((_, rest)) => Ok(Expr::QExpr(rest.to_vec())),
+        None => Err(Error::EmptyQExpr(Expr::QExpr(qexpr.clone()))),
     }
 }
 
@@ -71,18 +65,14 @@ fn qexpr_oper(oper: &QExprOp, qexpr: &Vec<Box<Expr>>) -> Result<Expr, Error> {
 }
 
 fn qexpr_oper_args(oper: &QExprOp, args: &[Box<Expr>]) -> Result<Expr, Error> {
-    let number_of_args = args.len();
-    match number_of_args {
-        1 => {
-            let arg = args.first().unwrap(); // since we already confirm the length
-            match &**arg {
-                Expr::QExpr(qexpr) => qexpr_oper(oper, qexpr),
-                expr => Err(Error::NotAQExpr(expr.clone())),
-            }
-        }
-        _ => Err(Error::InvalidNumberOfArguments(
+    match &args[..] {
+        [arg] => match &**arg {
+            Expr::QExpr(qexpr) => qexpr_oper(oper, &qexpr),
+            expr => Err(Error::NotAQExpr(expr.clone())),
+        },
+        _ => Err(Error::InvalidNumberOfQExprArguments(
             oper.clone(),
-            number_of_args,
+            args.len(),
         )),
     }
 }

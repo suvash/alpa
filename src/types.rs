@@ -87,7 +87,8 @@ impl fmt::Display for Expr {
 #[derive(Debug, PartialEq, Eq)]
 pub enum Error {
     DivideByZero(Sankhya, Sankhya),
-    InvalidNumberOfArguments(QExprOp, usize),
+    InvalidNumberOfQExprArguments(QExprOp, usize),
+    EmptyQExpr(Expr),
     InvalidOp(Expr),
     NotANumber(Expr),
     NotAQExpr(Expr),
