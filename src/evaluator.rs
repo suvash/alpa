@@ -45,7 +45,7 @@ fn num_oper_args(oper: &NumberOp, args: &[Box<Expr>]) -> Result<Expr, Error> {
 
 fn qexpr_first(qexpr: &Vec<Box<Expr>>) -> Result<Expr, Error> {
     match qexpr.split_first() {
-        Some((first, _)) => Ok(*first.clone()),
+        Some((first, _)) => Ok(Expr::QExpr(vec![first.clone()])),
         None => Err(Error::EmptyQExpr(Expr::QExpr(qexpr.clone()))),
     }
 }
