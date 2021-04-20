@@ -71,10 +71,10 @@ fn qexpr_oper(oper: &QExprOp, qexpr: &Vec<Box<Expr>>) -> Result<Expr, Error> {
 
 fn qexpr_oper_args(oper: &QExprOp, args: &[Box<Expr>]) -> Result<Expr, Error> {
     match &args[..] {
-        [arg] => match &**arg {
+        [arg] => match eval(&arg)? {
             Expr::QExpr(qexpr) => qexpr_oper(oper, &qexpr),
             expr => Err(Error::NotAQExpr(expr.clone())),
-        },
+	}
         _ => Err(Error::InvalidNumberOfQExprArguments(
             oper.clone(),
             args.len(),
