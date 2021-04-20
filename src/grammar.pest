@@ -8,7 +8,7 @@ sexpr = { "(" ~ expr* ~ ")"}
 
 qexpr = { "'(" ~ expr* ~ ")"}
 
-symbol = { number_op | qexpr_op }
+symbol = { number_op | qexpr_op | sexpr_op }
   number_op = { add | subtract | multiply | divide }
     add      = { "+" }
     subtract = { "-" }
@@ -17,6 +17,8 @@ symbol = { number_op | qexpr_op }
   qexpr_op = { first | rest }
     first = { "पहिलो" }
     rest = { "बाँकी" }
+  sexpr_op = { list }
+    list = { "सुची" }
 
 number = @{ ( "+" | "-" )? ~ '०'..'९'+ }
 

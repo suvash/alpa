@@ -1,5 +1,5 @@
 use crate::ntypes::Sankhya;
-use crate::types::{Error, Expr, NumberOp, QExprOp, Symbol};
+use crate::types::{Error, Expr, NumberOp, QExprOp, SExprOp, Symbol};
 
 fn num_add(sx: Sankhya, sy: Sankhya) -> Result<Expr, Error> {
     Ok(Expr::Num(Sankhya(sx.0 + sy.0)))
@@ -77,6 +77,29 @@ fn qexpr_oper_args(oper: &QExprOp, args: &[Box<Expr>]) -> Result<Expr, Error> {
     }
 }
 
+fn sexpr_list(sexpr: &Vec<Box<Expr>>) -> Result<Expr, Error> {
+    Ok(Expr::QExpr(sexpr.clone()))
+}
+
+fn sexpr_oper(oper: &SExprOp, sexpr: &Vec<Box<Expr>>) -> Result<Expr, Error> {
+    match oper {
+        SExprOp::List => sexpr_list(sexpr),
+    }
+}
+
+fn sexpr_oper_args(oper: &SExprOp, args: &[Box<Expr>]) -> Result<Expr, Error> {
+    match &args[..] {
+        [arg] => match &**arg {
+            Expr::SExpr(qexpr) => sexpr_oper(oper, &qexpr),
+            expr => Err(Error::NotASExpr(expr.clone())),
+        },
+        _ => Err(Error::InvalidNumberOfSExprArguments(
+            oper.clone(),
+            args.len(),
+        )),
+    }
+}
+
 pub fn eval(expr: &Expr) -> Result<Expr, Error> {
     match expr {
         Expr::Num(_) => Ok(expr.clone()),
@@ -87,6 +110,7 @@ pub fn eval(expr: &Expr) -> Result<Expr, Error> {
             [oper, args @ ..] => match &**oper {
                 Expr::Sym(Symbol::NumberOp(op)) => num_oper_args(&op, args),
                 Expr::Sym(Symbol::QExprOp(op)) => qexpr_oper_args(&op, args),
+                Expr::Sym(Symbol::SExprOp(op)) => sexpr_oper_args(&op, args),
                 x => Err(Error::InvalidOp(x.clone())),
             },
         },
