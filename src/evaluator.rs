@@ -110,26 +110,23 @@ fn qexprs_oper_args(oper: &QExprsOp, args: &[Box<Expr>]) -> Result<Expr, Error> 
     }
 }
 
-fn sexpr_quote(sexpr: &Vec<Box<Expr>>) -> Result<Expr, Error> {
-    Ok(Expr::QExpr(sexpr.clone()))
+fn sexpr_quote(sexpr: &[Box<Expr>]) -> Result<Expr, Error> {
+    Ok(Expr::QExpr(sexpr.to_vec()))
 }
 
-fn sexpr_oper(oper: &SExprOp, sexpr: &Vec<Box<Expr>>) -> Result<Expr, Error> {
+fn sexpr_oper(oper: &SExprOp, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
     match oper {
-        SExprOp::Quote => sexpr_quote(sexpr),
+        SExprOp::Quote => sexpr_quote(exprs),
     }
 }
 
 fn sexpr_oper_args(oper: &SExprOp, args: &[Box<Expr>]) -> Result<Expr, Error> {
     match &args[..] {
-        [arg] => match &**arg {
-            Expr::SExpr(qexpr) => sexpr_oper(oper, &qexpr),
-            expr => Err(Error::NotASExpr(expr.clone())),
-        },
-        _ => Err(Error::InvalidNumberOfSExprArguments(
+        [] => Err(Error::InvalidNumberOfSExprArguments(
             oper.clone(),
             args.len(),
         )),
+        _ => sexpr_oper(oper, &args),
     }
 }
 
