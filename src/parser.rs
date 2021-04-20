@@ -3,7 +3,7 @@ use pest::iterators::Pair;
 use pest::Parser;
 
 use crate::ntypes::Sankhya;
-use crate::types::{Expr, Operation, Symbol};
+use crate::types::{Expr, NumberOp, QExprOp, Symbol};
 
 #[derive(pest_derive::Parser)]
 #[grammar = "grammar.pest"]
@@ -63,15 +63,37 @@ fn parse_number(pair: Pair<Rule>) -> Expr {
 fn parse_symbol(pair: Pair<Rule>) -> Expr {
     let pair = pair.into_inner().next().unwrap();
 
-    let symbol = match pair.as_rule() {
-        Rule::add => Symbol::Operation(Operation::Add),
-        Rule::subtract => Symbol::Operation(Operation::Subtract),
-        Rule::multiply => Symbol::Operation(Operation::Multiply),
-        Rule::divide => Symbol::Operation(Operation::Divide),
+    match pair.as_rule() {
+        Rule::number_op => parse_number_op(pair),
+        Rule::qexpr_op => parse_qexpr_op(pair),
+        _ => unreachable!(),
+    }
+}
+
+fn parse_number_op(pair: Pair<Rule>) -> Expr {
+    let pair = pair.into_inner().next().unwrap();
+
+    let op = match pair.as_rule() {
+        Rule::add => NumberOp::Add,
+        Rule::subtract => NumberOp::Subtract,
+        Rule::multiply => NumberOp::Multiply,
+        Rule::divide => NumberOp::Divide,
         _ => unreachable!(),
     };
 
-    Expr::Sym(symbol)
+    Expr::Sym(Symbol::NumberOp(op))
+}
+
+fn parse_qexpr_op(pair: Pair<Rule>) -> Expr {
+    let pair = pair.into_inner().next().unwrap();
+
+    let op = match pair.as_rule() {
+        Rule::first => QExprOp::First,
+        Rule::rest => QExprOp::Rest,
+        _ => unreachable!(),
+    };
+
+    Expr::Sym(Symbol::QExprOp(op))
 }
 
 #[cfg(test)]
@@ -82,22 +104,22 @@ mod tests {
     fn test_parse_success() {
         let input = "+ +२ -५ () (* ४ ५) (/ -१० २) (- -१ ५)";
         let expected = Expr::SExpr(vec![
-            Box::new(Expr::Sym(Symbol::Operation(Operation::Add))),
+            Box::new(Expr::Sym(Symbol::NumberOp(NumberOp::Add))),
             Box::new(Expr::Num(Sankhya(2))),
             Box::new(Expr::Num(Sankhya(-5))),
             Box::new(Expr::SExpr(vec![])),
             Box::new(Expr::SExpr(vec![
-                Box::new(Expr::Sym(Symbol::Operation(Operation::Multiply))),
+                Box::new(Expr::Sym(Symbol::NumberOp(NumberOp::Multiply))),
                 Box::new(Expr::Num(Sankhya(4))),
                 Box::new(Expr::Num(Sankhya(5))),
             ])),
             Box::new(Expr::SExpr(vec![
-                Box::new(Expr::Sym(Symbol::Operation(Operation::Divide))),
+                Box::new(Expr::Sym(Symbol::NumberOp(NumberOp::Divide))),
                 Box::new(Expr::Num(Sankhya(-10))),
                 Box::new(Expr::Num(Sankhya(2))),
             ])),
             Box::new(Expr::SExpr(vec![
-                Box::new(Expr::Sym(Symbol::Operation(Operation::Subtract))),
+                Box::new(Expr::Sym(Symbol::NumberOp(NumberOp::Subtract))),
                 Box::new(Expr::Num(Sankhya(-1))),
                 Box::new(Expr::Num(Sankhya(5))),
             ])),

@@ -1,5 +1,5 @@
 use crate::ntypes::Sankhya;
-use crate::types::{Error, Expr, Operation, Symbol};
+use crate::types::{Error, Expr, NumberOp, QExprOp, Symbol};
 
 fn num_add(sx: Sankhya, sy: Sankhya) -> Result<Expr, Error> {
     Ok(Expr::Num(Sankhya(sx.0 + sy.0)))
@@ -20,16 +20,16 @@ fn num_divide(sx: Sankhya, sy: Sankhya) -> Result<Expr, Error> {
     }
 }
 
-fn num_oper(oper: &Operation, sx: Sankhya, sy: Sankhya) -> Result<Expr, Error> {
+fn num_oper(oper: &NumberOp, sx: Sankhya, sy: Sankhya) -> Result<Expr, Error> {
     match oper {
-        Operation::Add => num_add(sx, sy),
-        Operation::Subtract => num_subtract(sx, sy),
-        Operation::Multiply => num_multiply(sx, sy),
-        Operation::Divide => num_divide(sx, sy),
+        NumberOp::Add => num_add(sx, sy),
+        NumberOp::Subtract => num_subtract(sx, sy),
+        NumberOp::Multiply => num_multiply(sx, sy),
+        NumberOp::Divide => num_divide(sx, sy),
     }
 }
 
-fn num_oper_args(oper: &Operation, args: &[Box<Expr>]) -> Result<Expr, Error> {
+fn num_oper_args(oper: &NumberOp, args: &[Box<Expr>]) -> Result<Expr, Error> {
     let begin = eval(&args[0])?;
 
     match begin {
@@ -40,6 +40,50 @@ fn num_oper_args(oper: &Operation, args: &[Box<Expr>]) -> Result<Expr, Error> {
                 (_, y) => Err(Error::NotANumber(y)),
             }),
         x => Err(Error::NotANumber(x)),
+    }
+}
+
+fn qexpr_first(qexpr: &Vec<Box<Expr>>) -> Result<Expr, Error> {
+    match qexpr.is_empty() {
+        true => Ok(Expr::SExpr(vec![])),
+        false => {
+            let first = qexpr.first().unwrap().clone();
+            Ok(*first)
+        }
+    }
+}
+
+fn qexpr_rest(qexpr: &Vec<Box<Expr>>) -> Result<Expr, Error> {
+    match qexpr.len() {
+        0 | 1 => Ok(Expr::SExpr(vec![])),
+        _ => {
+            let (_, rest) = qexpr.split_first().unwrap();
+            Ok(Expr::QExpr(rest.to_vec()))
+        }
+    }
+}
+
+fn qexpr_oper(oper: &QExprOp, qexpr: &Vec<Box<Expr>>) -> Result<Expr, Error> {
+    match oper {
+        QExprOp::First => qexpr_first(qexpr),
+        QExprOp::Rest => qexpr_rest(qexpr),
+    }
+}
+
+fn qexpr_oper_args(oper: &QExprOp, args: &[Box<Expr>]) -> Result<Expr, Error> {
+    let number_of_args = args.len();
+    match number_of_args {
+        1 => {
+            let arg = args.first().unwrap(); // since we already confirm the length
+            match &**arg {
+                Expr::QExpr(qexpr) => qexpr_oper(oper, qexpr),
+                expr => Err(Error::NotAQExpr(expr.clone())),
+            }
+        }
+        _ => Err(Error::InvalidNumberOfArguments(
+            oper.clone(),
+            number_of_args,
+        )),
     }
 }
 
@@ -54,12 +98,13 @@ pub fn eval(expr: &Expr) -> Result<Expr, Error> {
                 let first = eval(&sexpr[0])?;
 
                 match &first {
-                    Expr::Sym(Symbol::Operation(op)) => num_oper_args(&op, &sexpr[1..]),
-                    x => Err(Error::NotANumberOperation(x.clone())),
+                    Expr::Sym(Symbol::NumberOp(op)) => num_oper_args(&op, &sexpr[1..]),
+                    Expr::Sym(Symbol::QExprOp(op)) => qexpr_oper_args(&op, &sexpr[1..]),
+                    x => Err(Error::InvalidOp(x.clone())),
                 }
             }
         },
-	Expr::QExpr(_) => Ok(expr.clone()),
+        Expr::QExpr(_) => Ok(expr.clone()),
     }
 }
 
@@ -70,21 +115,21 @@ mod tests {
     #[test]
     fn test_eval_success() {
         let input = Expr::SExpr(vec![
-            Box::new(Expr::Sym(Symbol::Operation(Operation::Add))),
+            Box::new(Expr::Sym(Symbol::NumberOp(NumberOp::Add))),
             Box::new(Expr::Num(Sankhya(2))),
             Box::new(Expr::Num(Sankhya(-5))),
             Box::new(Expr::SExpr(vec![
-                Box::new(Expr::Sym(Symbol::Operation(Operation::Multiply))),
+                Box::new(Expr::Sym(Symbol::NumberOp(NumberOp::Multiply))),
                 Box::new(Expr::Num(Sankhya(4))),
                 Box::new(Expr::Num(Sankhya(5))),
             ])),
             Box::new(Expr::SExpr(vec![
-                Box::new(Expr::Sym(Symbol::Operation(Operation::Divide))),
+                Box::new(Expr::Sym(Symbol::NumberOp(NumberOp::Divide))),
                 Box::new(Expr::Num(Sankhya(-10))),
                 Box::new(Expr::Num(Sankhya(2))),
             ])),
             Box::new(Expr::SExpr(vec![
-                Box::new(Expr::Sym(Symbol::Operation(Operation::Subtract))),
+                Box::new(Expr::Sym(Symbol::NumberOp(NumberOp::Subtract))),
                 Box::new(Expr::Num(Sankhya(-1))),
                 Box::new(Expr::Num(Sankhya(5))),
             ])),

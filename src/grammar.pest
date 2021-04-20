@@ -8,11 +8,15 @@ sexpr = { "(" ~ expr* ~ ")"}
 
 qexpr = { "'(" ~ expr* ~ ")"}
 
-symbol = { add | subtract | multiply | divide }
-add      = { "+" }
-subtract = { "-" }
-multiply = { "*" }
-divide   = { "/" }
+symbol = { number_op | qexpr_op }
+  number_op = { add | subtract | multiply | divide }
+    add      = { "+" }
+    subtract = { "-" }
+    multiply = { "*" }
+    divide   = { "/" }
+  qexpr_op = { first | rest }
+    first = { "पहिलो" }
+    rest = { "बाँकी" }
 
 number = @{ ( "+" | "-" )? ~ '०'..'९'+ }
 
