@@ -1,5 +1,5 @@
 use crate::ntypes::Sankhya;
-use crate::types::{Error, Expr, NumberOp, QExprOp, SExprOp, Symbol};
+use crate::types::{Error, Expr, NumberOp, QExprOp, QExprsOp, SExprOp, Symbol};
 
 fn num_add(sx: Sankhya, sy: Sankhya) -> Result<Expr, Error> {
     Ok(Expr::Num(Sankhya(sx.0 + sy.0)))
@@ -82,6 +82,34 @@ fn qexpr_oper_args(oper: &QExprOp, args: &[Box<Expr>]) -> Result<Expr, Error> {
     }
 }
 
+fn qexprs_join(qexprs: &[Box<Expr>]) -> Result<Expr, Error> {
+    qexprs
+        .iter()
+        .fold(Ok(Expr::QExpr(vec![])), |a, b| match (a?, *b.clone()) {
+            (Expr::QExpr(mut x), Expr::QExpr(y)) => {
+                x.extend(y);
+                Ok(Expr::QExpr(x))
+            }
+            (_, y) => Err(Error::NotAQExpr(y)),
+        })
+}
+
+fn qexprs_oper(oper: &QExprsOp, qexprs: &[Box<Expr>]) -> Result<Expr, Error> {
+    match oper {
+        QExprsOp::Join => qexprs_join(&qexprs),
+    }
+}
+
+fn qexprs_oper_args(oper: &QExprsOp, args: &[Box<Expr>]) -> Result<Expr, Error> {
+    match &args[..] {
+        [] => Err(Error::InvalidNumberOfQExprsArguments(
+            oper.clone(),
+            args.len(),
+        )),
+        _ => qexprs_oper(oper, &args),
+    }
+}
+
 fn sexpr_quote(sexpr: &Vec<Box<Expr>>) -> Result<Expr, Error> {
     Ok(Expr::QExpr(sexpr.clone()))
 }
@@ -115,6 +143,7 @@ pub fn eval(expr: &Expr) -> Result<Expr, Error> {
             [oper, args @ ..] => match &**oper {
                 Expr::Sym(Symbol::NumberOp(op)) => num_oper_args(&op, args),
                 Expr::Sym(Symbol::QExprOp(op)) => qexpr_oper_args(&op, args),
+                Expr::Sym(Symbol::QExprsOp(op)) => qexprs_oper_args(&op, args),
                 Expr::Sym(Symbol::SExprOp(op)) => sexpr_oper_args(&op, args),
                 x => Err(Error::InvalidOp(x.clone())),
             },

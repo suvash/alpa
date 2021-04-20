@@ -3,7 +3,7 @@ use pest::iterators::Pair;
 use pest::Parser;
 
 use crate::ntypes::Sankhya;
-use crate::types::{Expr, NumberOp, QExprOp, SExprOp, Symbol};
+use crate::types::{Expr, NumberOp, QExprOp, QExprsOp, SExprOp, Symbol};
 
 #[derive(pest_derive::Parser)]
 #[grammar = "grammar.pest"]
@@ -66,6 +66,7 @@ fn parse_symbol(pair: Pair<Rule>) -> Expr {
     match pair.as_rule() {
         Rule::number_op => parse_number_op(pair),
         Rule::qexpr_op => parse_qexpr_op(pair),
+        Rule::qexprs_op => parse_qexprs_op(pair),
         Rule::sexpr_op => parse_sexpr_op(pair),
         _ => unreachable!(),
     }
@@ -96,6 +97,17 @@ fn parse_qexpr_op(pair: Pair<Rule>) -> Expr {
     };
 
     Expr::Sym(Symbol::QExprOp(op))
+}
+
+fn parse_qexprs_op(pair: Pair<Rule>) -> Expr {
+    let pair = pair.into_inner().next().unwrap();
+
+    let op = match pair.as_rule() {
+        Rule::join => QExprsOp::Join,
+        _ => unreachable!(),
+    };
+
+    Expr::Sym(Symbol::QExprsOp(op))
 }
 
 fn parse_sexpr_op(pair: Pair<Rule>) -> Expr {

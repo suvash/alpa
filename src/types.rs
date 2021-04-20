@@ -39,6 +39,19 @@ impl fmt::Display for QExprOp {
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
+pub enum QExprsOp {
+    Join,
+}
+
+impl fmt::Display for QExprsOp {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            QExprsOp::Join => write!(f, "एकत्र"),
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub enum SExprOp {
     Quote,
 }
@@ -55,6 +68,7 @@ impl fmt::Display for SExprOp {
 pub enum Symbol {
     NumberOp(NumberOp),
     QExprOp(QExprOp),
+    QExprsOp(QExprsOp),
     SExprOp(SExprOp),
 }
 
@@ -73,6 +87,7 @@ impl fmt::Display for Expr {
             Expr::Sym(s) => match s {
                 Symbol::NumberOp(o) => write!(f, "{}", o),
                 Symbol::QExprOp(o) => write!(f, "{}", o),
+                Symbol::QExprsOp(o) => write!(f, "{}", o),
                 Symbol::SExprOp(o) => write!(f, "{}", o),
             },
             Expr::SExpr(sexpr) => {
@@ -105,6 +120,7 @@ impl fmt::Display for Expr {
 pub enum Error {
     DivideByZero(Sankhya, Sankhya),
     InvalidNumberOfQExprArguments(QExprOp, usize),
+    InvalidNumberOfQExprsArguments(QExprsOp, usize),
     InvalidNumberOfSExprArguments(SExprOp, usize),
     EmptyQExpr(Expr),
     InvalidOp(Expr),
