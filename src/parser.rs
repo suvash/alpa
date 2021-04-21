@@ -64,12 +64,17 @@ fn parse_symbol(pair: Pair<Rule>) -> Expr {
     let pair = pair.into_inner().next().unwrap();
 
     match pair.as_rule() {
+        Rule::identifier => parse_identifier(pair),
         Rule::numbers_op => parse_numbers_op(pair),
         Rule::qexpr_op => parse_qexpr_op(pair),
         Rule::qexprs_op => parse_qexprs_op(pair),
         Rule::sexpr_op => parse_sexpr_op(pair),
         _ => unreachable!(),
     }
+}
+
+fn parse_identifier(pair: Pair<Rule>) -> Expr {
+    Expr::Sym(Symbol::Identifier(pair.as_str().to_string()))
 }
 
 fn parse_numbers_op(pair: Pair<Rule>) -> Expr {

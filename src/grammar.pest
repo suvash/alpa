@@ -8,7 +8,7 @@ sexpr = { "(" ~ expr* ~ ")"}
 
 qexpr = { "'(" ~ expr* ~ ")"}
 
-symbol = { numbers_op | qexpr_op | qexprs_op | sexpr_op }
+symbol = { numbers_op | qexpr_op | qexprs_op | sexpr_op | identifier }
   numbers_op = { add | subtract | multiply | divide }
     add      = { "+" } // "जोड"
     subtract = { "-" } // "घटाऊ"
@@ -24,8 +24,22 @@ symbol = { numbers_op | qexpr_op | qexprs_op | sexpr_op }
     join = { "एकत्र" }
   sexpr_op = { quote }
     quote = { "उद्धरण" }
+  identifier = @{ (chinha | swar | byanjan | maatraa | halanta | purnabiram | chhotkari | aum | anka | "_")+ }
+    // See https://www.unicode.org/charts/PDF/U0900.pdf for details
+    // only picking valid नेपाली (nepali) parts, not the entire devanagari chart
+    // including underscore
+    chinha = { "ँ" | "ं" | "ः" }
+    swar = { "अ" | "आ" | "इ" | "ई" | "उ" | "ऊ" | "ए" | "ऐ" | "ओ" | "ओ" | "ऋ" }
+    byanjan = { "क" | "ख" | "ग" | "घ" | "ङ" | "च" | "छ" | "ज" | "झ" | "ञ" | "ट" | "ठ" | "ड" | "ढ" | "ण" | "त" | "थ" | "द" | "ध" | "न" | "प" | "फ" | "ब" | "भ" | "म" | "य" | "र" | "ल" | "व" | "श" | "ष" | "स" | "ह" }
+    maatraa = { "ा" | "ि" | "ी" | "ु" | "ू" | "ृ" | "े" | "ै" | "ो" | "ौ" }
+    anka = { "०" | "१" | "२" | "३" | "४" | "५" | "६" | "७" | "८" | "९" }
+    halanta = { "्" }
+    purnabiram = { "।" }
+    chhotkari = { "॰" }
+    aum = { "ॐ" }
 
-number = @{ ( "+" | "-" )? ~ '०'..'९'+ }
+number = @{ ( "+" | "-" )? ~ sankhya }
+  sankhya = { anka+ }
 
 
 WHITESPACE = _{ " " | "\t" }

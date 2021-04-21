@@ -70,6 +70,7 @@ impl fmt::Display for SExprOp {
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum Symbol {
+    Identifier(String),
     NumberOp(NumberOp),
     QExprOp(QExprOp),
     QExprsOp(QExprsOp),
@@ -89,6 +90,7 @@ impl fmt::Display for Expr {
         match self {
             Expr::Num(n) => write!(f, "{}", n),
             Expr::Sym(s) => match s {
+                Symbol::Identifier(s) => write!(f, "{}", s),
                 Symbol::NumberOp(o) => write!(f, "{}", o),
                 Symbol::QExprOp(o) => write!(f, "{}", o),
                 Symbol::QExprsOp(o) => write!(f, "{}", o),
