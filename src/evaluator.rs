@@ -29,7 +29,7 @@ fn num_oper(oper: &NumberOp, sx: Sankhya, sy: Sankhya) -> Result<Expr, Error> {
     }
 }
 
-fn num_oper_args(oper: &NumberOp, args: &[Box<Expr>]) -> Result<Expr, Error> {
+fn nums_oper_args(oper: &NumberOp, args: &[Box<Expr>]) -> Result<Expr, Error> {
     let begin = eval(&args[0])?;
 
     match begin {
@@ -160,7 +160,7 @@ pub fn eval(expr: &Expr) -> Result<Expr, Error> {
             [] => Ok(expr.clone()),
             [expr] => eval(expr),
             [oper, args @ ..] => match &**oper {
-                Expr::Sym(Symbol::NumberOp(op)) => num_oper_args(&op, args),
+                Expr::Sym(Symbol::NumberOp(op)) => nums_oper_args(&op, args),
                 Expr::Sym(Symbol::QExprOp(op)) => qexpr_oper_args(&op, args),
                 Expr::Sym(Symbol::QExprsOp(op)) => qexprs_oper_args(&op, args),
                 Expr::Sym(Symbol::SExprOp(op)) => sexpr_oper_args(&op, args),

@@ -8,8 +8,8 @@ sexpr = { "(" ~ expr* ~ ")"}
 
 qexpr = { "'(" ~ expr* ~ ")"}
 
-symbol = { number_op | qexpr_op | qexprs_op | sexpr_op }
-  number_op = { add | subtract | multiply | divide }
+symbol = { numbers_op | qexpr_op | qexprs_op | sexpr_op }
+  numbers_op = { add | subtract | multiply | divide }
     add      = { "+" } // "जोड"
     subtract = { "-" } // "घटाऊ"
     multiply = { "*" } // "गुणन"
