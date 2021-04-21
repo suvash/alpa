@@ -25,6 +25,7 @@ impl fmt::Display for NumberOp {
 pub enum QExprOp {
     First,
     Rest,
+    Len,
     Eval,
 }
 
@@ -33,6 +34,7 @@ impl fmt::Display for QExprOp {
         match self {
             QExprOp::First => write!(f, "पहिलो"),
             QExprOp::Rest => write!(f, "बाँकी"),
+            QExprOp::Len => write!(f, "वटा"),
             QExprOp::Eval => write!(f, "बिस्तार"),
         }
     }
