@@ -40,12 +40,14 @@ impl fmt::Display for QExprOp {
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum QExprsOp {
+    Cons,
     Join,
 }
 
 impl fmt::Display for QExprsOp {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
+            QExprsOp::Cons => write!(f, "निर्माण"),
             QExprsOp::Join => write!(f, "एकत्र"),
         }
     }

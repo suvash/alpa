@@ -104,6 +104,7 @@ fn parse_qexprs_op(pair: Pair<Rule>) -> Expr {
 
     let op = match pair.as_rule() {
         Rule::join => QExprsOp::Join,
+        Rule::cons => QExprsOp::Cons,
         _ => unreachable!(),
     };
 

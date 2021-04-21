@@ -74,10 +74,26 @@ fn qexpr_oper_args(oper: &QExprOp, args: &[Box<Expr>]) -> Result<Expr, Error> {
         [arg] => match eval(&arg)? {
             Expr::QExpr(qexpr) => qexpr_oper(oper, &qexpr),
             expr => Err(Error::NotAQExpr(expr.clone())),
-	}
+        },
         _ => Err(Error::InvalidNumberOfQExprArguments(
             oper.clone(),
             args.len(),
+        )),
+    }
+}
+
+fn qexprs_cons(exprs: &[Box<Expr>]) -> Result<Expr, Error> {
+    match &exprs[..] {
+        [pref_expr, expr] => match eval(&**expr)? {
+            Expr::QExpr(_) => {
+                let first = Box::new(Expr::QExpr(vec![pref_expr.clone()]));
+                qexprs_join(&[first, expr.clone()])
+            }
+            x => Err(Error::NotAQExpr(x.clone())),
+        },
+        _ => Err(Error::InvalidNumberOfQExprsArguments(
+            QExprsOp::Cons,
+            exprs.len(),
         )),
     }
 }
@@ -96,6 +112,7 @@ fn qexprs_join(qexprs: &[Box<Expr>]) -> Result<Expr, Error> {
 
 fn qexprs_oper(oper: &QExprsOp, qexprs: &[Box<Expr>]) -> Result<Expr, Error> {
     match oper {
+        QExprsOp::Cons => qexprs_cons(&qexprs),
         QExprsOp::Join => qexprs_join(&qexprs),
     }
 }
