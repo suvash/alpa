@@ -2,7 +2,7 @@ use std::fmt;
 
 use crate::ntypes::Sankhya;
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone, Hash)]
 pub enum NumberOp {
     Add,
     Subtract,
@@ -21,7 +21,7 @@ impl fmt::Display for NumberOp {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone, Hash)]
 pub enum QExprOp {
     First,
     Rest,
@@ -40,7 +40,7 @@ impl fmt::Display for QExprOp {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone, Hash)]
 pub enum QExprsOp {
     Cons,
     Join,
@@ -55,7 +55,7 @@ impl fmt::Display for QExprsOp {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone, Hash)]
 pub enum SExprOp {
     Quote,
 }
@@ -68,7 +68,7 @@ impl fmt::Display for SExprOp {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone, Hash)]
 pub enum Symbol {
     Identifier(String),
     NumberOp(NumberOp),
@@ -77,7 +77,7 @@ pub enum Symbol {
     SExprOp(SExprOp),
 }
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone, Hash)]
 pub enum Expr {
     Num(Sankhya),
     Sym(Symbol),
