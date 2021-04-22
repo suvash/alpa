@@ -77,7 +77,7 @@ pub enum Symbol {
     SExprOp(SExprOp),
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Hash)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Expr {
     Num(Sankhya),
     Sym(Symbol),
@@ -122,7 +122,7 @@ impl fmt::Display for Expr {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq)]
 pub enum Error {
     DivideByZero(Sankhya, Sankhya),
     InvalidNumberOfNumArguments(NumOp, usize),
