@@ -1,4 +1,5 @@
-pub mod env;
+pub mod core;
+pub mod environment;
 pub mod evaluator;
 pub mod ntypes;
 pub mod parser;

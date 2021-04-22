@@ -1,7 +1,7 @@
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
 
-use alpa::env::Env;
+use alpa::environment::Env;
 use alpa::evaluator;
 use alpa::parser;
 use std::collections::HashMap;
