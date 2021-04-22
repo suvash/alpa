@@ -58,16 +58,16 @@ fn read_eval_print(env: &Env, line: &str) -> () {
             eprintln!("{:?}", e);
         }
         Ok(expr) => {
-            println!("{}", &expr);
+            println!("Parsed : {:?}", &expr);
 
             match evaluator::eval(env, &expr) {
                 Err(e) => {
                     eprintln!("Could not eval");
-                    eprintln!("{:?}", e);
+                    eprintln!("Eval Error : {:?}", e);
                 }
 
                 Ok(expr) => {
-                    println!("{:?}", &expr);
+                    println!("Evaled : {:?}", &expr);
                     println!("{}", &expr);
                 }
             }

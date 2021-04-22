@@ -1,89 +1,136 @@
 use crate::env::Env;
 use crate::ntypes::Sankhya;
-use crate::types::{Error, Expr, NumberOp, QExprOp, QExprsOp, SExprOp, Symbol};
+use crate::types::{Error, Expr, NumOp, QExprOp, QExprsOp, SExprOp, Symbol};
 
-fn num_add(sx: Sankhya, sy: Sankhya) -> Result<Expr, Error> {
-    Ok(Expr::Num(Sankhya(sx.0 + sy.0)))
-}
-
-fn num_subtract(sx: Sankhya, sy: Sankhya) -> Result<Expr, Error> {
-    Ok(Expr::Num(Sankhya(sx.0 - sy.0)))
-}
-
-fn num_multiply(sx: Sankhya, sy: Sankhya) -> Result<Expr, Error> {
-    Ok(Expr::Num(Sankhya(sx.0 * sy.0)))
-}
-
-fn num_divide(sx: Sankhya, sy: Sankhya) -> Result<Expr, Error> {
-    match sy.0 {
-        0 => Err(Error::DivideByZero(sx, sy)),
-        _ => Ok(Expr::Num(Sankhya(sx.0 / sy.0))),
+fn nums_add(env: &Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
+    match &exprs[..] {
+        [first, rest @ ..] => match eval(env, &**first)? {
+            Expr::Num(s) => rest
+                .iter()
+                .fold(Ok(Expr::Num(s)), |a, b| match (a?, eval(env, b)?) {
+                    (Expr::Num(x), Expr::Num(y)) => Ok(Expr::Num(Sankhya(x.0 + y.0))),
+                    (_, y) => Err(Error::NotANumber(y)),
+                }),
+            x => Err(Error::NotANumber(x)),
+        },
+        _ => Err(Error::InvalidNumberOfNumArguments(
+            NumOp::Add,
+            exprs.len(),
+        )),
     }
 }
 
-fn num_oper(oper: &NumberOp, sx: Sankhya, sy: Sankhya) -> Result<Expr, Error> {
-    match oper {
-        NumberOp::Add => num_add(sx, sy),
-        NumberOp::Subtract => num_subtract(sx, sy),
-        NumberOp::Multiply => num_multiply(sx, sy),
-        NumberOp::Divide => num_divide(sx, sy),
+fn nums_subtract(env: &Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
+    match &exprs[..] {
+        [first, rest @ ..] => match eval(env, &**first)? {
+            Expr::Num(s) => rest
+                .iter()
+                .fold(Ok(Expr::Num(s)), |a, b| match (a?, eval(env, b)?) {
+                    (Expr::Num(x), Expr::Num(y)) => Ok(Expr::Num(Sankhya(x.0 - y.0))),
+                    (_, y) => Err(Error::NotANumber(y)),
+                }),
+            x => Err(Error::NotANumber(x)),
+        },
+        _ => Err(Error::InvalidNumberOfNumArguments(
+            NumOp::Subtract,
+            exprs.len(),
+        )),
     }
 }
 
-fn nums_oper_args(env: &Env, oper: &NumberOp, args: &[Box<Expr>]) -> Result<Expr, Error> {
-    let begin = eval(env, &args[0])?;
-
-    match begin {
-        Expr::Num(_) => args[1..]
-            .iter()
-            .fold(Ok(begin), |a, b| match (a?, eval(env, b)?) {
-                (Expr::Num(x), Expr::Num(y)) => num_oper(oper, x, y),
-                (_, y) => Err(Error::NotANumber(y)),
-            }),
-        x => Err(Error::NotANumber(x)),
+fn nums_multiply(env: &Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
+    match &exprs[..] {
+        [first, rest @ ..] => match eval(env, &**first)? {
+            Expr::Num(s) => rest
+                .iter()
+                .fold(Ok(Expr::Num(s)), |a, b| match (a?, eval(env, b)?) {
+                    (Expr::Num(x), Expr::Num(y)) => Ok(Expr::Num(Sankhya(x.0 * y.0))),
+                    (_, y) => Err(Error::NotANumber(y)),
+                }),
+            x => Err(Error::NotANumber(x)),
+        },
+        _ => Err(Error::InvalidNumberOfNumArguments(
+            NumOp::Multiply,
+            exprs.len(),
+        )),
     }
 }
 
-fn qexpr_first(qexpr: &Vec<Box<Expr>>) -> Result<Expr, Error> {
-    match qexpr.split_first() {
-        Some((first, _)) => Ok(Expr::QExpr(vec![first.clone()])),
-        None => Err(Error::EmptyQExpr(Expr::QExpr(qexpr.clone()))),
+fn nums_divide(env: &Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
+    match &exprs[..] {
+        [first, rest @ ..] => match eval(env, &**first)? {
+            Expr::Num(s) => rest
+                .iter()
+                .fold(Ok(Expr::Num(s)), |a, b| match (a?, eval(env, b)?) {
+                    (Expr::Num(x), Expr::Num(y)) => match y.0 {
+                        0 => Err(Error::DivideByZero(x, y)),
+                        _ => Ok(Expr::Num(Sankhya(x.0 / y.0))),
+                    },
+                    (_, y) => Err(Error::NotANumber(y)),
+                }),
+            x => Err(Error::NotANumber(x)),
+        },
+        _ => Err(Error::InvalidNumberOfNumArguments(
+            NumOp::Divide,
+            exprs.len(),
+        )),
     }
 }
 
-fn qexpr_rest(qexpr: &Vec<Box<Expr>>) -> Result<Expr, Error> {
-    match qexpr.split_first() {
-        Some((_, rest)) => Ok(Expr::QExpr(rest.to_vec())),
-        None => Err(Error::EmptyQExpr(Expr::QExpr(qexpr.clone()))),
-    }
-}
-
-fn qexpr_len(qexpr: &Vec<Box<Expr>>) -> Result<Expr, Error> {
-    Ok(Expr::Num(Sankhya(qexpr.len() as i32)))
-}
-
-fn qexpr_eval(env: &Env, qexpr: &Vec<Box<Expr>>) -> Result<Expr, Error> {
-    eval(env, &Expr::SExpr(qexpr.to_vec()))
-}
-
-fn qexpr_oper(env: &Env, oper: &QExprOp, qexpr: &Vec<Box<Expr>>) -> Result<Expr, Error> {
-    match oper {
-        QExprOp::First => qexpr_first(qexpr),
-        QExprOp::Rest => qexpr_rest(qexpr),
-        QExprOp::Len => qexpr_len(qexpr),
-        QExprOp::Eval => qexpr_eval(env, qexpr),
-    }
-}
-
-fn qexpr_oper_args(env: &Env, oper: &QExprOp, args: &[Box<Expr>]) -> Result<Expr, Error> {
-    match &args[..] {
-        [arg] => match eval(env, &arg)? {
-            Expr::QExpr(qexpr) => qexpr_oper(env, oper, &qexpr),
-            expr => Err(Error::NotAQExpr(expr.clone())),
+fn qexpr_first(env: &Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
+    match &exprs[..] {
+        [expr] => match eval(env, &expr)? {
+            Expr::QExpr(qexpr) => match qexpr.split_first() {
+                Some((first, _)) => Ok(Expr::QExpr(vec![first.clone()])),
+                None => Err(Error::EmptyQExpr(Expr::QExpr(qexpr.clone()))),
+            },
+            x => Err(Error::NotAQExpr(x.clone())),
         },
         _ => Err(Error::InvalidNumberOfQExprArguments(
-            oper.clone(),
-            args.len(),
+            QExprOp::First,
+            exprs.len(),
+        )),
+    }
+}
+
+fn qexpr_rest(env: &Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
+    match &exprs[..] {
+        [expr] => match eval(env, &expr)? {
+            Expr::QExpr(qexpr) => match qexpr.split_first() {
+                Some((_, rest)) => Ok(Expr::QExpr(rest.to_vec())),
+                None => Err(Error::EmptyQExpr(Expr::QExpr(qexpr.clone()))),
+            },
+            x => Err(Error::NotAQExpr(x.clone())),
+        },
+        _ => Err(Error::InvalidNumberOfQExprArguments(
+            QExprOp::Rest,
+            exprs.len(),
+        )),
+    }
+}
+
+fn qexpr_len(env: &Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
+    match &exprs[..] {
+        [expr] => match eval(env, &expr)? {
+            Expr::QExpr(qexpr) => Ok(Expr::Num(Sankhya(qexpr.len() as i32))),
+            x => Err(Error::NotAQExpr(x.clone())),
+        },
+        _ => Err(Error::InvalidNumberOfQExprArguments(
+            QExprOp::Len,
+            exprs.len(),
+        )),
+    }
+}
+
+fn qexpr_eval(env: &Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
+    match &exprs[..] {
+        [expr] => match eval(env, &expr)? {
+            Expr::QExpr(qexpr) => eval(env, &Expr::SExpr(qexpr.to_vec())),
+            x => Err(Error::NotAQExpr(x.clone())),
+        },
+        _ => Err(Error::InvalidNumberOfQExprArguments(
+            QExprOp::Eval,
+            exprs.len(),
         )),
     }
 }
@@ -104,52 +151,31 @@ fn qexprs_cons(env: &Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
     }
 }
 
-fn qexprs_join(env: &Env, qexprs: &[Box<Expr>]) -> Result<Expr, Error> {
-    qexprs
-        .iter()
-        .fold(Ok(Expr::QExpr(vec![])), |a, b| match (a?, eval(env, b)?) {
-            (Expr::QExpr(mut x), Expr::QExpr(y)) => {
-                x.extend(y);
-                Ok(Expr::QExpr(x))
-            }
-            (_, y) => Err(Error::NotAQExpr(y)),
-        })
-}
-
-fn qexprs_oper(env: &Env, oper: &QExprsOp, qexprs: &[Box<Expr>]) -> Result<Expr, Error> {
-    match oper {
-        QExprsOp::Cons => qexprs_cons(env, &qexprs),
-        QExprsOp::Join => qexprs_join(&env, qexprs),
-    }
-}
-
-fn qexprs_oper_args(env: &Env, oper: &QExprsOp, args: &[Box<Expr>]) -> Result<Expr, Error> {
-    match &args[..] {
+fn qexprs_join(env: &Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
+    match &exprs[..] {
         [] => Err(Error::InvalidNumberOfQExprsArguments(
-            oper.clone(),
-            args.len(),
+            QExprsOp::Join,
+            exprs.len(),
         )),
-        _ => qexprs_oper(env, oper, &args),
+        _ => exprs
+            .iter()
+            .fold(Ok(Expr::QExpr(vec![])), |a, b| match (a?, eval(env, b)?) {
+                (Expr::QExpr(mut x), Expr::QExpr(y)) => {
+                    x.extend(y);
+                    Ok(Expr::QExpr(x))
+                }
+                (_, y) => Err(Error::NotAQExpr(y)),
+            }),
     }
 }
 
-fn sexpr_quote(sexpr: &[Box<Expr>]) -> Result<Expr, Error> {
-    Ok(Expr::QExpr(sexpr.to_vec()))
-}
-
-fn sexpr_oper(oper: &SExprOp, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
-    match oper {
-        SExprOp::Quote => sexpr_quote(exprs),
-    }
-}
-
-fn sexpr_oper_args(oper: &SExprOp, args: &[Box<Expr>]) -> Result<Expr, Error> {
-    match &args[..] {
+fn sexpr_quote(exprs: &[Box<Expr>]) -> Result<Expr, Error> {
+    match &exprs[..] {
         [] => Err(Error::InvalidNumberOfSExprArguments(
-            oper.clone(),
-            args.len(),
+            SExprOp::Quote,
+            exprs.len(),
         )),
-        _ => sexpr_oper(oper, &args),
+        _ => Ok(Expr::QExpr(exprs.to_vec())),
     }
 }
 
@@ -163,11 +189,18 @@ pub fn eval(env: &Env, expr: &Expr) -> Result<Expr, Error> {
         Expr::SExpr(sexpr) => match &**sexpr {
             [] => Ok(expr.clone()),
             [expr] => eval(env, expr),
-            [oper, args @ ..] => match &**oper {
-                Expr::Sym(Symbol::NumberOp(op)) => nums_oper_args(env, op, args),
-                Expr::Sym(Symbol::QExprOp(op)) => qexpr_oper_args(env, op, args),
-                Expr::Sym(Symbol::QExprsOp(op)) => qexprs_oper_args(env, op, args),
-                Expr::Sym(Symbol::SExprOp(op)) => sexpr_oper_args(op, args),
+            [oper, exprs @ ..] => match &**oper {
+                Expr::Sym(Symbol::NumOp(NumOp::Add)) => nums_add(env, exprs),
+                Expr::Sym(Symbol::NumOp(NumOp::Subtract)) => nums_subtract(env, exprs),
+                Expr::Sym(Symbol::NumOp(NumOp::Multiply)) => nums_multiply(env, exprs),
+                Expr::Sym(Symbol::NumOp(NumOp::Divide)) => nums_divide(env, exprs),
+                Expr::Sym(Symbol::QExprOp(QExprOp::First)) => qexpr_first(env, exprs),
+                Expr::Sym(Symbol::QExprOp(QExprOp::Rest)) => qexpr_rest(env, exprs),
+                Expr::Sym(Symbol::QExprOp(QExprOp::Len)) => qexpr_len(env, exprs),
+                Expr::Sym(Symbol::QExprOp(QExprOp::Eval)) => qexpr_eval(env, exprs),
+                Expr::Sym(Symbol::QExprsOp(QExprsOp::Cons)) => qexprs_cons(env, exprs),
+                Expr::Sym(Symbol::QExprsOp(QExprsOp::Join)) => qexprs_join(env, exprs),
+                Expr::Sym(Symbol::SExprOp(SExprOp::Quote)) => sexpr_quote(exprs),
                 x => Err(Error::InvalidOp(x.clone())),
             },
         },
@@ -183,21 +216,21 @@ mod tests {
     #[test]
     fn test_eval_success() {
         let input = Expr::SExpr(vec![
-            Box::new(Expr::Sym(Symbol::NumberOp(NumberOp::Add))),
+            Box::new(Expr::Sym(Symbol::NumOp(NumOp::Add))),
             Box::new(Expr::Num(Sankhya(2))),
             Box::new(Expr::Num(Sankhya(-5))),
             Box::new(Expr::SExpr(vec![
-                Box::new(Expr::Sym(Symbol::NumberOp(NumberOp::Multiply))),
+                Box::new(Expr::Sym(Symbol::NumOp(NumOp::Multiply))),
                 Box::new(Expr::Num(Sankhya(4))),
                 Box::new(Expr::Num(Sankhya(5))),
             ])),
             Box::new(Expr::SExpr(vec![
-                Box::new(Expr::Sym(Symbol::NumberOp(NumberOp::Divide))),
+                Box::new(Expr::Sym(Symbol::NumOp(NumOp::Divide))),
                 Box::new(Expr::Num(Sankhya(-10))),
                 Box::new(Expr::Num(Sankhya(2))),
             ])),
             Box::new(Expr::SExpr(vec![
-                Box::new(Expr::Sym(Symbol::NumberOp(NumberOp::Subtract))),
+                Box::new(Expr::Sym(Symbol::NumOp(NumOp::Subtract))),
                 Box::new(Expr::Num(Sankhya(-1))),
                 Box::new(Expr::Num(Sankhya(5))),
             ])),

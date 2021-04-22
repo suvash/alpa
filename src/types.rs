@@ -3,20 +3,20 @@ use std::fmt;
 use crate::ntypes::Sankhya;
 
 #[derive(Debug, PartialEq, Eq, Clone, Hash)]
-pub enum NumberOp {
+pub enum NumOp {
     Add,
     Subtract,
     Multiply,
     Divide,
 }
 
-impl fmt::Display for NumberOp {
+impl fmt::Display for NumOp {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            NumberOp::Add => write!(f, "+"),
-            NumberOp::Subtract => write!(f, "-"),
-            NumberOp::Multiply => write!(f, "*"),
-            NumberOp::Divide => write!(f, "/"),
+            NumOp::Add => write!(f, "+"),
+            NumOp::Subtract => write!(f, "-"),
+            NumOp::Multiply => write!(f, "*"),
+            NumOp::Divide => write!(f, "/"),
         }
     }
 }
@@ -71,7 +71,7 @@ impl fmt::Display for SExprOp {
 #[derive(Debug, PartialEq, Eq, Clone, Hash)]
 pub enum Symbol {
     Identifier(String),
-    NumberOp(NumberOp),
+    NumOp(NumOp),
     QExprOp(QExprOp),
     QExprsOp(QExprsOp),
     SExprOp(SExprOp),
@@ -91,7 +91,7 @@ impl fmt::Display for Expr {
             Expr::Num(n) => write!(f, "{}", n),
             Expr::Sym(s) => match s {
                 Symbol::Identifier(s) => write!(f, "{}", s),
-                Symbol::NumberOp(o) => write!(f, "{}", o),
+                Symbol::NumOp(o) => write!(f, "{}", o),
                 Symbol::QExprOp(o) => write!(f, "{}", o),
                 Symbol::QExprsOp(o) => write!(f, "{}", o),
                 Symbol::SExprOp(o) => write!(f, "{}", o),
@@ -125,6 +125,7 @@ impl fmt::Display for Expr {
 #[derive(Debug, PartialEq, Eq)]
 pub enum Error {
     DivideByZero(Sankhya, Sankhya),
+    InvalidNumberOfNumArguments(NumOp, usize),
     InvalidNumberOfQExprArguments(QExprOp, usize),
     InvalidNumberOfQExprsArguments(QExprsOp, usize),
     InvalidNumberOfSExprArguments(SExprOp, usize),

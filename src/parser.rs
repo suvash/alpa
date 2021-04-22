@@ -3,7 +3,7 @@ use pest::iterators::Pair;
 use pest::Parser;
 
 use crate::ntypes::Sankhya;
-use crate::types::{Expr, NumberOp, QExprOp, QExprsOp, SExprOp, Symbol};
+use crate::types::{Expr, NumOp, QExprOp, QExprsOp, SExprOp, Symbol};
 
 #[derive(pest_derive::Parser)]
 #[grammar = "grammar.pest"]
@@ -81,14 +81,14 @@ fn parse_numbers_op(pair: Pair<Rule>) -> Expr {
     let pair = pair.into_inner().next().unwrap();
 
     let op = match pair.as_rule() {
-        Rule::add => NumberOp::Add,
-        Rule::subtract => NumberOp::Subtract,
-        Rule::multiply => NumberOp::Multiply,
-        Rule::divide => NumberOp::Divide,
+        Rule::add => NumOp::Add,
+        Rule::subtract => NumOp::Subtract,
+        Rule::multiply => NumOp::Multiply,
+        Rule::divide => NumOp::Divide,
         _ => unreachable!(),
     };
 
-    Expr::Sym(Symbol::NumberOp(op))
+    Expr::Sym(Symbol::NumOp(op))
 }
 
 fn parse_qexpr_op(pair: Pair<Rule>) -> Expr {
@@ -136,22 +136,22 @@ mod tests {
     fn test_parse_success() {
         let input = "+ +२ -५ () (* ४ ५) (/ -१० २) (- -१ ५)";
         let expected = Expr::SExpr(vec![
-            Box::new(Expr::Sym(Symbol::NumberOp(NumberOp::Add))),
+            Box::new(Expr::Sym(Symbol::NumOp(NumOp::Add))),
             Box::new(Expr::Num(Sankhya(2))),
             Box::new(Expr::Num(Sankhya(-5))),
             Box::new(Expr::SExpr(vec![])),
             Box::new(Expr::SExpr(vec![
-                Box::new(Expr::Sym(Symbol::NumberOp(NumberOp::Multiply))),
+                Box::new(Expr::Sym(Symbol::NumOp(NumOp::Multiply))),
                 Box::new(Expr::Num(Sankhya(4))),
                 Box::new(Expr::Num(Sankhya(5))),
             ])),
             Box::new(Expr::SExpr(vec![
-                Box::new(Expr::Sym(Symbol::NumberOp(NumberOp::Divide))),
+                Box::new(Expr::Sym(Symbol::NumOp(NumOp::Divide))),
                 Box::new(Expr::Num(Sankhya(-10))),
                 Box::new(Expr::Num(Sankhya(2))),
             ])),
             Box::new(Expr::SExpr(vec![
-                Box::new(Expr::Sym(Symbol::NumberOp(NumberOp::Subtract))),
+                Box::new(Expr::Sym(Symbol::NumOp(NumOp::Subtract))),
                 Box::new(Expr::Num(Sankhya(-1))),
                 Box::new(Expr::Num(Sankhya(5))),
             ])),
