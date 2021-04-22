@@ -1,19 +1,19 @@
 use std::collections::HashMap;
 
-use crate::types::{Function, Symbol};
+use crate::types::{Expr, Symbol};
 
 #[derive(Debug)]
 pub struct Env<'a> {
-    store: HashMap<Symbol, Function>,
+    store: HashMap<Symbol, Expr>,
     pub outer: Option<&'a Env<'a>>,
 }
 
 impl<'b> Env<'b> {
-    pub fn new(store: HashMap<Symbol, Function>, outer: Option<&'b Env<'b>>) -> Self {
+    pub fn new(store: HashMap<Symbol, Expr>, outer: Option<&'b Env<'b>>) -> Self {
         Env { store, outer }
     }
 
-    pub fn get(&self, symbol: &Symbol) -> Option<&Function> {
+    pub fn get(&self, symbol: &Symbol) -> Option<&Expr> {
         self.store.get(symbol)
     }
 }

@@ -5,7 +5,7 @@ pub fn eval(env: &Env, expr: &Expr) -> Result<Expr, Error> {
     match expr {
         Expr::Num(_) => Ok(expr.clone()),
         Expr::Sym(sym) => match env.get(&sym) {
-            Some(env_expr) => Ok(Expr::Fun(env_expr.clone())),
+            Some(env_expr) => Ok(env_expr.clone()),
             None => Err(Error::UnboundSymbol(sym.clone())),
         },
         Expr::SExpr(sexpr) => match &**sexpr {
