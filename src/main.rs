@@ -6,6 +6,9 @@ use alpa::evaluator;
 use alpa::parser;
 use std::collections::HashMap;
 
+use alpa::core::{self};
+use alpa::types::{Function, NumOp, QExprOp, QExprsOp, SExprOp, Symbol};
+
 fn main() {
     print_banner();
     repl();
@@ -17,6 +20,61 @@ fn print_banner() {
     println!("{} version {}", name, version);
     println!("Use Ctrl-C, or Ctrl-D to exit prompt");
     println!();
+}
+
+fn repl_env() -> Env<'static> {
+    let mut store: HashMap<Symbol, Function> = HashMap::new();
+
+    store.insert(
+        Symbol::NumOp(NumOp::Add),
+        Function::Core(Symbol::NumOp(NumOp::Add), core::nums_add),
+    );
+    store.insert(
+        Symbol::NumOp(NumOp::Subtract),
+        Function::Core(Symbol::NumOp(NumOp::Subtract), core::nums_subtract),
+    );
+    store.insert(
+        Symbol::NumOp(NumOp::Multiply),
+        Function::Core(Symbol::NumOp(NumOp::Multiply), core::nums_multiply),
+    );
+    store.insert(
+        Symbol::NumOp(NumOp::Divide),
+        Function::Core(Symbol::NumOp(NumOp::Divide), core::nums_divide),
+    );
+    store.insert(
+        Symbol::NumOp(NumOp::Multiply),
+        Function::Core(Symbol::NumOp(NumOp::Multiply), core::nums_multiply),
+    );
+    store.insert(
+        Symbol::QExprOp(QExprOp::First),
+        Function::Core(Symbol::QExprOp(QExprOp::First), core::qexpr_first),
+    );
+    store.insert(
+        Symbol::QExprOp(QExprOp::Rest),
+        Function::Core(Symbol::QExprOp(QExprOp::Rest), core::qexpr_rest),
+    );
+    store.insert(
+        Symbol::QExprOp(QExprOp::Len),
+        Function::Core(Symbol::QExprOp(QExprOp::Len), core::qexpr_len),
+    );
+    store.insert(
+        Symbol::QExprOp(QExprOp::Eval),
+        Function::Core(Symbol::QExprOp(QExprOp::Eval), core::qexpr_eval),
+    );
+    store.insert(
+        Symbol::QExprsOp(QExprsOp::Cons),
+        Function::Core(Symbol::QExprsOp(QExprsOp::Cons), core::qexprs_cons),
+    );
+    store.insert(
+        Symbol::QExprsOp(QExprsOp::Join),
+        Function::Core(Symbol::QExprsOp(QExprsOp::Join), core::qexprs_join),
+    );
+    store.insert(
+        Symbol::SExprOp(SExprOp::Quote),
+        Function::Core(Symbol::SExprOp(SExprOp::Quote), core::sexpr_quote),
+    );
+
+    Env::new(store, None)
 }
 
 fn repl() {
@@ -31,8 +89,8 @@ fn repl() {
             Ok(line) => {
                 rl.add_history_entry(line.as_str());
 
-                let repl_env = Env::new(HashMap::new(), None);
-                read_eval_print(&repl_env, &line);
+                let env = repl_env();
+                read_eval_print(&env, &line);
             }
             Err(ReadlineError::Interrupted) => {
                 eprintln!("CTRL-C");

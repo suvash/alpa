@@ -3,6 +3,8 @@ use crate::evaluator;
 use crate::ntypes::Sankhya;
 use crate::types::{Error, Expr, NumOp, QExprOp, QExprsOp, SExprOp};
 
+pub type CoreFn = fn(&Env, &[Box<Expr>]) -> Result<Expr, Error>;
+
 macro_rules! nums_fn {
     ($fn_name:ident, $op:expr, $x:ident, $y:ident, $x_y_body:block) => {
         pub fn $fn_name(env: &Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
@@ -114,7 +116,7 @@ pub fn qexprs_join(env: &Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
     }
 }
 
-pub fn sexpr_quote(exprs: &[Box<Expr>]) -> Result<Expr, Error> {
+pub fn sexpr_quote(_env: &Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
     match &exprs[..] {
         [] => Err(Error::InvalidNumberOfSExprArguments(
             SExprOp::Quote,

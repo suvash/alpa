@@ -1,5 +1,6 @@
 use std::fmt;
 
+use crate::core::CoreFn;
 use crate::ntypes::Sankhya;
 
 #[derive(Debug, PartialEq, Eq, Clone, Hash)]
@@ -77,12 +78,55 @@ pub enum Symbol {
     SExprOp(SExprOp),
 }
 
+impl fmt::Display for Symbol {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Symbol::Identifier(s) => write!(f, "आइडेन्टिफायर({})", s),
+            Symbol::NumOp(o) => write!(f, "नम-अप({})", o),
+            Symbol::QExprOp(o) => write!(f, "क्यु-एक्सपर्-अप({})", o),
+            Symbol::QExprsOp(o) => write!(f, "क्यु-एक्सपर्स-अप({})", o),
+            Symbol::SExprOp(o) => write!(f, "एस्-एक्सपर्-अप({})", o),
+        }
+    }
+}
+
+#[derive(Clone)]
+pub enum Function {
+    Core(Symbol, CoreFn),
+}
+
+impl fmt::Debug for Function {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Function::Core(sym, _) => write!(f, "Core({:?}, pointer)", sym),
+        }
+    }
+}
+
+impl PartialEq for Function {
+    fn eq(&self, other: &Self) -> bool {
+        use Function::*;
+        match (self, other) {
+            (Core(self_sym, _), Core(other_sym, _)) => self_sym == other_sym,
+        }
+    }
+}
+
+impl fmt::Display for Function {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Function::Core(sym, _) => write!(f, "कोर({}, प्वाइन्टर)", sym),
+        }
+    }
+}
+
 #[derive(Debug, PartialEq, Clone)]
 pub enum Expr {
     Num(Sankhya),
     Sym(Symbol),
     SExpr(Vec<Box<Expr>>),
     QExpr(Vec<Box<Expr>>),
+    Fun(Function),
 }
 
 impl fmt::Display for Expr {
@@ -118,6 +162,9 @@ impl fmt::Display for Expr {
                         .join(" ")
                 )
             }
+            Expr::Fun(fun) => {
+                write!(f, "{}", fun)
+            }
         }
     }
 }
@@ -134,4 +181,5 @@ pub enum Error {
     NotANumber(Expr),
     NotAQExpr(Expr),
     NotASExpr(Expr),
+    UnboundSymbol(Symbol),
 }
