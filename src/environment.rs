@@ -1,20 +1,26 @@
 use std::collections::HashMap;
 
-use crate::types::{Expr, Symbol};
+use crate::types::{Error, Expr, Symbol};
 
 #[derive(Debug)]
 pub struct Env<'a> {
     store: HashMap<Symbol, Expr>,
-    pub outer: Option<&'a Env<'a>>,
+    pub parent: Option<&'a Env<'a>>,
 }
 
 impl<'b> Env<'b> {
-    pub fn new(store: HashMap<Symbol, Expr>, outer: Option<&'b Env<'b>>) -> Self {
-        Env { store, outer }
+    pub fn new(store: HashMap<Symbol, Expr>, parent: Option<&'b Env<'b>>) -> Self {
+        Env { store, parent }
     }
 
-    pub fn get(&self, symbol: &Symbol) -> Option<&Expr> {
-        self.store.get(symbol)
+    pub fn get(&self, symbol: &Symbol) -> Result<Expr, Error> {
+        match self.store.get(symbol) {
+            Some(expr) => Ok(expr.clone()),
+            None => match self.parent {
+                None => Err(Error::UnboundSymbol(symbol.clone())),
+                Some(parent) => parent.get(symbol),
+            },
+        }
     }
 }
 

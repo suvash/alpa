@@ -4,10 +4,7 @@ use crate::types::{Error, Expr, Function};
 pub fn eval(env: &Env, expr: &Expr) -> Result<Expr, Error> {
     match expr {
         Expr::Num(_) => Ok(expr.clone()),
-        Expr::Sym(sym) => match env.get(&sym) {
-            Some(env_expr) => Ok(env_expr.clone()),
-            None => Err(Error::UnboundSymbol(sym.clone())),
-        },
+        Expr::Sym(sym) => env.get(&sym),
         Expr::SExpr(sexpr) => match &**sexpr {
             [] => Ok(expr.clone()),
             [expr] => eval(env, expr),
