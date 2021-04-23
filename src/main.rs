@@ -6,9 +6,6 @@ use alpa::evaluator;
 use alpa::parser;
 use std::collections::HashMap;
 
-use alpa::core::{self};
-use alpa::types::{Expr, Function, NumOp, QExprOp, QExprsOp, SExprOp, Symbol};
-
 fn main() {
     print_banner();
     repl();
@@ -23,91 +20,10 @@ fn print_banner() {
 }
 
 fn repl_env() -> Env<'static> {
-    let mut store: HashMap<Symbol, Expr> = HashMap::new();
+    let mut env = Env::new(HashMap::new(), None);
+    env.load_core_fns();
 
-    store.insert(
-        Symbol::NumOp(NumOp::Add),
-        Expr::Fun(Function::Core(Symbol::NumOp(NumOp::Add), core::nums_add)),
-    );
-    store.insert(
-        Symbol::NumOp(NumOp::Subtract),
-        Expr::Fun(Function::Core(
-            Symbol::NumOp(NumOp::Subtract),
-            core::nums_subtract,
-        )),
-    );
-    store.insert(
-        Symbol::NumOp(NumOp::Multiply),
-        Expr::Fun(Function::Core(
-            Symbol::NumOp(NumOp::Multiply),
-            core::nums_multiply,
-        )),
-    );
-    store.insert(
-        Symbol::NumOp(NumOp::Divide),
-        Expr::Fun(Function::Core(
-            Symbol::NumOp(NumOp::Divide),
-            core::nums_divide,
-        )),
-    );
-    store.insert(
-        Symbol::NumOp(NumOp::Multiply),
-        Expr::Fun(Function::Core(
-            Symbol::NumOp(NumOp::Multiply),
-            core::nums_multiply,
-        )),
-    );
-    store.insert(
-        Symbol::QExprOp(QExprOp::First),
-        Expr::Fun(Function::Core(
-            Symbol::QExprOp(QExprOp::First),
-            core::qexpr_first,
-        )),
-    );
-    store.insert(
-        Symbol::QExprOp(QExprOp::Rest),
-        Expr::Fun(Function::Core(
-            Symbol::QExprOp(QExprOp::Rest),
-            core::qexpr_rest,
-        )),
-    );
-    store.insert(
-        Symbol::QExprOp(QExprOp::Len),
-        Expr::Fun(Function::Core(
-            Symbol::QExprOp(QExprOp::Len),
-            core::qexpr_len,
-        )),
-    );
-    store.insert(
-        Symbol::QExprOp(QExprOp::Eval),
-        Expr::Fun(Function::Core(
-            Symbol::QExprOp(QExprOp::Eval),
-            core::qexpr_eval,
-        )),
-    );
-    store.insert(
-        Symbol::QExprsOp(QExprsOp::Cons),
-        Expr::Fun(Function::Core(
-            Symbol::QExprsOp(QExprsOp::Cons),
-            core::qexprs_cons,
-        )),
-    );
-    store.insert(
-        Symbol::QExprsOp(QExprsOp::Join),
-        Expr::Fun(Function::Core(
-            Symbol::QExprsOp(QExprsOp::Join),
-            core::qexprs_join,
-        )),
-    );
-    store.insert(
-        Symbol::SExprOp(SExprOp::Quote),
-        Expr::Fun(Function::Core(
-            Symbol::SExprOp(SExprOp::Quote),
-            core::sexpr_quote,
-        )),
-    );
-
-    Env::new(store, None)
+    env
 }
 
 fn repl() {
