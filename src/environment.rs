@@ -29,6 +29,10 @@ impl<'b> Env<'b> {
         *sym_entry = expr;
     }
 
+    pub fn bind_local_symbol(&mut self, symbol: &Symbol, expr: Expr) {
+        self.insert_or_update(symbol, expr)
+    }
+
     fn bind_core_fn(&mut self, symbol: &Symbol, func: CoreFn) {
         self.insert_or_update(symbol, Expr::Fun(Function::Core(symbol.clone(), func)))
     }
@@ -45,6 +49,7 @@ impl<'b> Env<'b> {
         self.bind_core_fn(&Symbol::QExprOp(QExprOp::Eval), core::qexpr_eval);
         self.bind_core_fn(&Symbol::QExprsOp(QExprsOp::Cons), core::qexprs_cons);
         self.bind_core_fn(&Symbol::QExprsOp(QExprsOp::Join), core::qexprs_join);
+        self.bind_core_fn(&Symbol::QExprsOp(QExprsOp::Def), core::qexprs_def);
         self.bind_core_fn(&Symbol::SExprOp(SExprOp::Quote), core::sexpr_quote);
     }
 }

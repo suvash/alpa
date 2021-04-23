@@ -45,6 +45,7 @@ impl fmt::Display for QExprOp {
 pub enum QExprsOp {
     Cons,
     Join,
+    Def,
 }
 
 impl fmt::Display for QExprsOp {
@@ -52,6 +53,7 @@ impl fmt::Display for QExprsOp {
         match self {
             QExprsOp::Cons => write!(f, "निर्माण"),
             QExprsOp::Join => write!(f, "एकत्र"),
+            QExprsOp::Def => write!(f, "नामक"),
         }
     }
 }
@@ -179,7 +181,9 @@ pub enum Error {
     EmptyQExpr(Expr),
     InvalidOp(Expr),
     NotANumber(Expr),
+    NotASymbol(Expr),
     NotAQExpr(Expr),
     NotASExpr(Expr),
     UnboundSymbol(Symbol),
+    UnEqualDefList(Expr, Vec<Box<Expr>>),
 }

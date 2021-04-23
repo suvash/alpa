@@ -3,11 +3,11 @@ use crate::evaluator;
 use crate::ntypes::Sankhya;
 use crate::types::{Error, Expr, NumOp, QExprOp, QExprsOp, SExprOp};
 
-pub type CoreFn = fn(&Env, &[Box<Expr>]) -> Result<Expr, Error>;
+pub type CoreFn = fn(&mut Env, &[Box<Expr>]) -> Result<Expr, Error>;
 
 macro_rules! nums_fn {
     ($fn_name:ident, $op:expr, $x:ident, $y:ident, $x_y_body:block) => {
-        pub fn $fn_name(env: &Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
+        pub fn $fn_name(env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
             match &exprs[..] {
                 [first, rest @ ..] => match evaluator::eval(env, &**first)? {
                     Expr::Num(s) => rest.iter().fold(Ok(Expr::Num(s)), |a, b| {
@@ -45,7 +45,7 @@ nums_fn!(nums_divide, NumOp::Divide, x, y, {
 
 macro_rules! qexpr_fn {
     ($fn_name:ident, $op:expr, $env:ident, $qexpr:ident, $qexpr_body:block) => {
-        pub fn $fn_name($env: &Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
+        pub fn $fn_name($env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
             match &exprs[..] {
                 [expr] => match evaluator::eval($env, &expr)? {
                     Expr::QExpr($qexpr) => $qexpr_body,
@@ -82,7 +82,7 @@ qexpr_fn!(qexpr_eval, QExprOp::Eval, env, qexpr, {
     evaluator::eval(env, &Expr::SExpr(qexpr.to_vec()))
 });
 
-pub fn qexprs_cons(env: &Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
+pub fn qexprs_cons(env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
     match &exprs[..] {
         [pref_expr, expr] => match evaluator::eval(env, &**expr)? {
             Expr::QExpr(_) => {
@@ -98,7 +98,7 @@ pub fn qexprs_cons(env: &Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
     }
 }
 
-pub fn qexprs_join(env: &Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
+pub fn qexprs_join(env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
     match &exprs[..] {
         [] => Err(Error::InvalidNumberOfQExprsArguments(
             QExprsOp::Join,
@@ -116,7 +116,46 @@ pub fn qexprs_join(env: &Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
     }
 }
 
-pub fn sexpr_quote(_env: &Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
+pub fn qexprs_def(env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
+    match &exprs[..] {
+        [first, rest @ ..] => match evaluator::eval(env, &**first)? {
+            Expr::QExpr(qexpr) => match qexpr.len() == rest.len() {
+                true => {
+                    let mut sym_exprs = vec![];
+                    let mut non_sym_exprs = vec![];
+
+                    qexpr
+                        .iter()
+                        .zip(rest.iter())
+                        .for_each(|z| match (&**z.0, &**z.1) {
+                            (Expr::Sym(sym), expr) => sym_exprs.push((sym, expr)),
+                            (expr1, _) => non_sym_exprs.push(expr1.clone()),
+                        });
+
+                    match non_sym_exprs.as_slice() {
+                        [first, _rest @ ..] => Err(Error::NotASymbol(first.clone())),
+                        [] => {
+                            sym_exprs.iter().for_each(|p| {
+                                env.bind_local_symbol(p.0, p.1.clone());
+                            });
+
+                            Ok(Expr::SExpr(vec![]))
+                        }
+                    }
+                }
+                false => Err(Error::UnEqualDefList(*first.clone(), rest.to_vec())),
+            },
+            _ => Err(Error::NotAQExpr(*first.clone())),
+        },
+
+        _ => Err(Error::InvalidNumberOfQExprsArguments(
+            QExprsOp::Def,
+            exprs.len(),
+        )),
+    }
+}
+
+pub fn sexpr_quote(_env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
     match &exprs[..] {
         [] => Err(Error::InvalidNumberOfSExprArguments(
             SExprOp::Quote,

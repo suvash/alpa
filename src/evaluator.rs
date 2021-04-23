@@ -1,7 +1,7 @@
 use crate::environment::Env;
 use crate::types::{Error, Expr, Function};
 
-pub fn eval(env: &Env, expr: &Expr) -> Result<Expr, Error> {
+pub fn eval(env: &mut Env, expr: &Expr) -> Result<Expr, Error> {
     match expr {
         Expr::Num(_) => Ok(expr.clone()),
         Expr::Sym(sym) => env.lookup(&sym),

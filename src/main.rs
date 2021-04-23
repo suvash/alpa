@@ -32,14 +32,14 @@ fn repl() {
     if rl.load_history(&history_filename).is_err() {
         eprintln!("Could not find previous history.");
     }
+    let mut env = repl_env();
     loop {
         let readline = rl.readline(">> ");
         match readline {
             Ok(line) => {
                 rl.add_history_entry(line.as_str());
 
-                let env = repl_env();
-                read_eval_print(&env, &line);
+                read_eval_print(&mut env, &line);
             }
             Err(ReadlineError::Interrupted) => {
                 eprintln!("CTRL-C");
@@ -58,7 +58,7 @@ fn repl() {
     rl.save_history(&history_filename).unwrap();
 }
 
-fn read_eval_print(env: &Env, line: &str) -> () {
+fn read_eval_print(env: &mut Env, line: &str) -> () {
     match parser::parse(line) {
         Err(e) => {
             eprintln!("Could not parse");
