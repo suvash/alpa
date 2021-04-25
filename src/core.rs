@@ -164,3 +164,8 @@ pub fn sexpr_quote(_env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
         _ => Ok(Expr::QExpr(exprs.to_vec())),
     }
 }
+
+pub fn sexpr_printenv(env: &mut Env, _exprs: &[Box<Expr>]) -> Result<Expr, Error> {
+    println!("{:#?}", env);
+    Ok(Expr::QExpr(vec![]))
+}

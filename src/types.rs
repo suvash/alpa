@@ -61,12 +61,14 @@ impl fmt::Display for QExprsOp {
 #[derive(Debug, PartialEq, Eq, Clone, Hash)]
 pub enum SExprOp {
     Quote,
+    PrintEnv,
 }
 
 impl fmt::Display for SExprOp {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             SExprOp::Quote => write!(f, "उद्धरण"),
+            SExprOp::PrintEnv => write!(f, "वातावरण"),
         }
     }
 }

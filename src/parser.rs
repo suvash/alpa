@@ -123,6 +123,7 @@ fn parse_sexpr_op(pair: Pair<Rule>) -> Expr {
 
     let op = match pair.as_rule() {
         Rule::quote => SExprOp::Quote,
+        Rule::printenv => SExprOp::PrintEnv,
         _ => unreachable!(),
     };
 

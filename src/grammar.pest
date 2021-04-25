@@ -23,8 +23,9 @@ symbol = { numbers_op | qexpr_op | qexprs_op | sexpr_op | identifier }
     cons = { "निर्माण" }
     join = { "एकत्र" }
     def = { "नामक" }
-  sexpr_op = { quote }
+  sexpr_op = { quote | printenv}
     quote = { "उद्धरण" }
+    printenv = { "वातावरण" }
   identifier = @{ (chinha | swar | byanjan | maatraa | halanta | purnabiram | chhotkari | aum | anka | "_")+ }
     // See https://www.unicode.org/charts/PDF/U0900.pdf for details
     // only picking valid नेपाली (nepali) parts, not the entire devanagari chart
