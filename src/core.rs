@@ -1,7 +1,9 @@
+use std::collections::HashMap;
+
 use crate::environment::Env;
 use crate::evaluator;
 use crate::ntypes::Sankhya;
-use crate::types::{Error, Expr, NumOp, QExprOp, QExprsOp, SExprOp};
+use crate::types::{Error, Expr, Function, NumOp, QExprOp, QExprsOp, SExprOp};
 
 pub type CoreFn = fn(&mut Env, &[Box<Expr>]) -> Result<Expr, Error>;
 
@@ -150,6 +152,36 @@ pub fn qexprs_def(env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
 
         _ => Err(Error::InvalidNumberOfQExprsArguments(
             QExprsOp::Def,
+            exprs.len(),
+        )),
+    }
+}
+
+pub fn qexprs_lambda(_env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
+    match &exprs[..] {
+        [q_syms, q_body] => match (&**q_syms, &**q_body) {
+            (Expr::QExpr(qexpr), Expr::QExpr(body)) => {
+                let mut sym_exprs = vec![];
+                let mut non_sym_exprs = vec![];
+
+                qexpr.iter().for_each(|q| match &**q {
+                    Expr::Sym(sym) => sym_exprs.push(sym.clone()),
+                    x => non_sym_exprs.push(x.clone()),
+                });
+
+                match non_sym_exprs.as_slice() {
+                    [first, _rest @ ..] => Err(Error::NotASymbol(first.clone())),
+                    [] => Ok(Expr::Fun(Function::Lambda(
+                        sym_exprs,
+                        Box::new(Expr::QExpr(body.clone())),
+                        HashMap::new(),
+                    ))),
+                }
+            }
+            _ => Ok(Expr::QExpr(vec![])),
+        },
+        _ => Err(Error::InvalidNumberOfQExprsArguments(
+            QExprsOp::Lambda,
             exprs.len(),
         )),
     }

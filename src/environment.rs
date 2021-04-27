@@ -50,6 +50,7 @@ impl<'b> Env<'b> {
         self.bind_core_fn(&Symbol::QExprsOp(QExprsOp::Cons), core::qexprs_cons);
         self.bind_core_fn(&Symbol::QExprsOp(QExprsOp::Join), core::qexprs_join);
         self.bind_core_fn(&Symbol::QExprsOp(QExprsOp::Def), core::qexprs_def);
+        self.bind_core_fn(&Symbol::QExprsOp(QExprsOp::Lambda), core::qexprs_lambda);
         self.bind_core_fn(&Symbol::SExprOp(SExprOp::Quote), core::sexpr_quote);
         self.bind_core_fn(&Symbol::SExprOp(SExprOp::PrintEnv), core::sexpr_printenv);
     }

@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::fmt;
 
 use crate::core::CoreFn;
@@ -46,6 +47,7 @@ pub enum QExprsOp {
     Cons,
     Join,
     Def,
+    Lambda,
 }
 
 impl fmt::Display for QExprsOp {
@@ -54,6 +56,7 @@ impl fmt::Display for QExprsOp {
             QExprsOp::Cons => write!(f, "निर्माण"),
             QExprsOp::Join => write!(f, "एकत्र"),
             QExprsOp::Def => write!(f, "नामक"),
+            QExprsOp::Lambda => write!(f, "ल्याम्बडा"),
         }
     }
 }
@@ -97,12 +100,20 @@ impl fmt::Display for Symbol {
 #[derive(Clone)]
 pub enum Function {
     Core(Symbol, CoreFn),
+    Lambda(Vec<Symbol>, Box<Expr>, HashMap<Symbol, Expr>),
 }
 
 impl fmt::Debug for Function {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Function::Core(sym, _) => write!(f, "Core({:?}, pointer)", sym),
+            Function::Lambda(syms, expr, hmap) => {
+                write!(
+                    f,
+                    "Lambda(syms : {:?}, body : {:?}, env : {:?})",
+                    syms, expr, hmap
+                )
+            }
         }
     }
 }
@@ -112,6 +123,7 @@ impl PartialEq for Function {
         use Function::*;
         match (self, other) {
             (Core(self_sym, _), Core(other_sym, _)) => self_sym == other_sym,
+            _ => false,
         }
     }
 }
@@ -120,6 +132,13 @@ impl fmt::Display for Function {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Function::Core(sym, _) => write!(f, "कोर({}, प्वाइन्टर)", sym),
+            Function::Lambda(syms, expr, hmap) => {
+                write!(
+                    f,
+                    "ल्याम्बडा(सिम्बलहरु : {:?}, बडी : {:?}, वातावरण : {:?})",
+                    syms, expr, hmap
+                )
+            }
         }
     }
 }
