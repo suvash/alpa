@@ -6,18 +6,18 @@ use crate::types::{Error, Expr, Function, NumOp, QExprOp, QExprsOp, SExprOp, Sym
 #[derive(Debug)]
 pub struct Env<'a> {
     local: HashMap<Symbol, Expr>,
-    pub parent: Option<&'a Env<'a>>,
+    pub parent: Option<&'a mut Env<'a>>,
 }
 
 impl<'b> Env<'b> {
-    pub fn new(local: HashMap<Symbol, Expr>, parent: Option<&'b Env<'b>>) -> Self {
+    pub fn new(local: HashMap<Symbol, Expr>, parent: Option<&'b mut Env<'b>>) -> Self {
         Env { local, parent }
     }
 
     pub fn lookup(&self, symbol: &Symbol) -> Result<Expr, Error> {
         match self.local.get(symbol) {
             Some(expr) => Ok(expr.clone()),
-            None => match self.parent {
+            None => match &self.parent {
                 None => Err(Error::UnboundSymbol(symbol.clone())),
                 Some(parent) => parent.lookup(symbol),
             },
@@ -31,6 +31,17 @@ impl<'b> Env<'b> {
 
     pub fn bind_local_symbol(&mut self, symbol: &Symbol, expr: Expr) {
         self.insert_or_update(symbol, expr)
+    }
+
+    fn root(&mut self) -> &mut Self {
+        match self.parent {
+            None => self,
+            Some(ref mut parent) => parent.root(),
+        }
+    }
+
+    pub fn bind_global_symbol(&mut self, symbol: &Symbol, expr: Expr) {
+        self.root().bind_local_symbol(symbol, expr)
     }
 
     fn bind_core_fn(&mut self, symbol: &Symbol, func: CoreFn) {
