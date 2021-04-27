@@ -47,6 +47,7 @@ pub enum QExprsOp {
     Cons,
     Join,
     Def,
+    Put,
     Lambda,
 }
 
@@ -56,6 +57,7 @@ impl fmt::Display for QExprsOp {
             QExprsOp::Cons => write!(f, "निर्माण"),
             QExprsOp::Join => write!(f, "एकत्र"),
             QExprsOp::Def => write!(f, "नामक"),
+            QExprsOp::Put => write!(f, "="),
             QExprsOp::Lambda => write!(f, "ल्याम्बडा"),
         }
     }

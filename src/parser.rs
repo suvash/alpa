@@ -112,6 +112,7 @@ fn parse_qexprs_op(pair: Pair<Rule>) -> Expr {
         Rule::join => QExprsOp::Join,
         Rule::cons => QExprsOp::Cons,
         Rule::def => QExprsOp::Def,
+        Rule::put => QExprsOp::Put,
         Rule::lambda => QExprsOp::Lambda,
         _ => unreachable!(),
     };
