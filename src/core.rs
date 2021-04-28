@@ -53,10 +53,7 @@ macro_rules! qexpr_fn {
                     Expr::QExpr($qexpr) => $qexpr_body,
                     x => Err(Error::NotAQExpr(x.clone())),
                 },
-                _ => Err(Error::InvalidNumberOfQExprArguments(
-                    QExprOp::First,
-                    exprs.len(),
-                )),
+                _ => Err(Error::InvalidNumberOfQExprArguments($op, exprs.len())),
             }
         }
     };
@@ -159,11 +156,11 @@ macro_rules! qexprs_assign_fn {
     };
 }
 
-qexprs_assign_fn!(qexprs_def, env, pair , {
+qexprs_assign_fn!(qexprs_def, env, pair, {
     env.bind_global_symbol(pair.0, pair.1.clone());
 });
 
-qexprs_assign_fn!(qexprs_put, env, pair , {
+qexprs_assign_fn!(qexprs_put, env, pair, {
     env.bind_local_symbol(pair.0, pair.1.clone());
 });
 
@@ -188,7 +185,8 @@ pub fn qexprs_lambda(_env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error>
                     ))),
                 }
             }
-            _ => Ok(Expr::QExpr(vec![])),
+            (Expr::QExpr(_), expr) => Err(Error::NotAQExpr(expr.clone())),
+            (expr, _) => Err(Error::NotAQExpr(expr.clone())),
         },
         _ => Err(Error::InvalidNumberOfQExprsArguments(
             QExprsOp::Lambda,

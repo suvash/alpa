@@ -1,5 +1,7 @@
+use std::collections::HashMap;
+
 use crate::environment::Env;
-use crate::types::{Error, Expr, Function};
+use crate::types::{Error, Expr, Function, Symbol};
 
 pub fn eval(env: &mut Env, expr: &Expr) -> Result<Expr, Error> {
     match expr {
@@ -9,12 +11,55 @@ pub fn eval(env: &mut Env, expr: &Expr) -> Result<Expr, Error> {
             [] => Ok(expr.clone()),
             [expr] => eval(env, expr),
             [oper, exprs @ ..] => match eval(env, oper) {
+                Ok(Expr::Sym(sym)) => env.lookup(&sym),
+                Ok(Expr::SExpr(_)) => eval(env, oper),
                 Ok(Expr::Fun(Function::Core(_, cf))) => cf(env, exprs),
+                Ok(Expr::Fun(Function::Lambda(syms, body, mut hmap))) => {
+                    eval_lambda(env, syms, body, &mut hmap, exprs)
+                }
                 _ => Err(Error::InvalidOp(*oper.clone())),
             },
         },
         Expr::QExpr(_) => Ok(expr.clone()),
         Expr::Fun(_) => Ok(expr.clone()),
+    }
+}
+
+fn eval_lambda(
+    parent: &mut Env,
+    formals: Vec<Symbol>,
+    body: Box<Expr>,
+    hmap: &mut HashMap<Symbol, Expr>,
+    args: &[Box<Expr>],
+) -> Result<Expr, Error> {
+    match args.len() > formals.len() {
+        true => Err(Error::TooManyLambdaArguments(formals.len(), args.len())),
+        false => {
+            let (formals_to_bind, unbound_formals) = &formals.split_at(args.len());
+
+            formals_to_bind.iter().zip(args.iter()).for_each(|z| {
+                hmap.insert(z.0.clone(), *z.1.clone());
+            });
+
+            match unbound_formals.is_empty() {
+                true => {
+                    // No parent env for now
+                    let mut env = Env::new(hmap.clone(), None);
+                    env.load_core_fns();
+                    let expr: Expr = Expr::SExpr(vec![
+                        Box::new(Expr::Sym(Symbol::QExprOp(crate::types::QExprOp::Eval))),
+                        body,
+                    ]);
+                    println!("{:?}", &expr);
+                    eval(&mut env, &expr)
+                }
+                false => Ok(Expr::Fun(Function::Lambda(
+                    unbound_formals.to_vec(),
+                    body,
+                    hmap.clone(),
+                ))),
+            }
+        }
     }
 }
 
