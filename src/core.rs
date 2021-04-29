@@ -116,31 +116,28 @@ pub fn qexprs_join(env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
 }
 
 macro_rules! qexprs_assign_fn {
-    ($fn_name:ident, $env:ident, $pair:ident, $pair_body:block) => {
+    ($fn_name:ident, $env:ident, $sym:ident, $expr:ident, $sym_expr_stmt:stmt) => {
         pub fn $fn_name($env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
             match &exprs[..] {
                 [first, rest @ ..] => match evaluator::eval($env, &**first)? {
                     Expr::QExpr(qexpr) => match qexpr.len() == rest.len() {
                         true => {
-                            let mut sym_exprs = vec![];
-                            let mut non_sym_exprs = vec![];
-
-                            qexpr
+                            let (_syms, non_syms): (Vec<_>, Vec<_>) = qexpr
                                 .iter()
                                 .zip(rest.iter())
-                                .for_each(|z| match (&**z.0, &**z.1) {
-                                    (Expr::Sym(sym), expr) => sym_exprs.push((sym, expr)),
-                                    (expr1, _) => non_sym_exprs.push(expr1.clone()),
-                                });
+                                .map(|z| match (&**z.0, evaluator::eval($env, &**z.1)?) {
+                                    (Expr::Sym($sym), $expr) => {
+					$sym_expr_stmt
+					Ok(Expr::SExpr(vec![]))
+				    }
+                                    (x, _) => Err(Error::NotASymbol(x.clone())),
+                                })
+				.partition(Result::is_ok);
 
-                            match non_sym_exprs.as_slice() {
-                                [first, _rest @ ..] => Err(Error::NotASymbol(first.clone())),
-                                [] => {
-                                    sym_exprs.iter().for_each(|$pair| $pair_body);
-
-                                    Ok(Expr::SExpr(vec![]))
-                                }
-                            }
+			    match &non_syms[..] {
+				[first, _rest @ ..] => first.clone(),
+				[] => Ok(Expr::SExpr(vec![]))
+			    }
                         }
                         false => Err(Error::UnEqualDefList(*first.clone(), rest.to_vec())),
                     },
@@ -156,12 +153,12 @@ macro_rules! qexprs_assign_fn {
     };
 }
 
-qexprs_assign_fn!(qexprs_def, env, pair, {
-    environment::bind_global_symbol(env, pair.0, &pair.1);
+qexprs_assign_fn!(qexprs_def, env, sym, expr, {
+    environment::bind_global_symbol(env, sym, &expr);
 });
 
-qexprs_assign_fn!(qexprs_put, env, pair, {
-    environment::bind_local_symbol(env, pair.0, pair.1);
+qexprs_assign_fn!(qexprs_put, env, sym, expr, {
+    environment::bind_local_symbol(env, sym, &expr);
 });
 
 pub fn qexprs_lambda(_env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {

@@ -194,7 +194,7 @@ impl fmt::Display for Expr {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Error {
     DivideByZero(Sankhya, Sankhya),
     InvalidNumberOfNumArguments(NumOp, usize),

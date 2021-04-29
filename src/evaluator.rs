@@ -18,12 +18,6 @@ pub fn eval(env: &mut Env, expr: &Expr) -> Result<Expr, Error> {
                 Ok(Expr::Fun(Function::Lambda(syms, body, mut hmap))) => {
                     eval_lambda(env, syms, body, &mut hmap, exprs)
                 }
-                Ok(Expr::QExpr(q)) => {
-                    let mut s: Vec<Box<Expr>> = vec![];
-                    s.push(Box::new(Expr::SExpr(q)));
-                    s.extend_from_slice(&exprs);
-                    eval(env, &Expr::SExpr(s))
-                }
                 _ => Err(Error::InvalidOp(*oper.clone())),
             },
         },
