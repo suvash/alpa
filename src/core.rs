@@ -161,9 +161,12 @@ qexprs_assign_fn!(qexprs_put, env, sym, expr, {
     environment::bind_local_symbol(env, sym, &expr);
 });
 
-pub fn qexprs_lambda(_env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
+pub fn qexprs_lambda(env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
     match &exprs[..] {
-        [q_syms, q_body] => match (&**q_syms, &**q_body) {
+        [q_syms, q_body] => match (
+            evaluator::eval(env, &**q_syms)?,
+            evaluator::eval(env, &**q_body)?,
+        ) {
             (Expr::QExpr(qexpr), Expr::QExpr(body)) => {
                 let mut sym_exprs = vec![];
                 let mut non_sym_exprs = vec![];
