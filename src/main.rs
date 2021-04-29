@@ -1,7 +1,7 @@
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
 
-use alpa::environment::Env;
+use alpa::environment::{self, Env};
 use alpa::evaluator;
 use alpa::parser;
 use std::collections::HashMap;
@@ -19,9 +19,9 @@ fn print_banner() {
     println!();
 }
 
-fn repl_env() -> Env<'static> {
-    let mut env = Env::new(HashMap::new(), None);
-    env.load_core_fns();
+fn repl_env() -> Env {
+    let env = environment::new(HashMap::new(), None);
+    environment::load_core_fns(&env);
 
     env
 }

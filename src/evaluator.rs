@@ -1,21 +1,28 @@
 use std::collections::HashMap;
+use std::rc::Rc;
 
-use crate::environment::Env;
+use crate::environment::{self, Env};
 use crate::types::{Error, Expr, Function, Symbol};
 
 pub fn eval(env: &mut Env, expr: &Expr) -> Result<Expr, Error> {
     match expr {
         Expr::Num(_) => Ok(expr.clone()),
-        Expr::Sym(sym) => env.lookup(&sym),
+        Expr::Sym(sym) => environment::lookup(env, &sym),
         Expr::SExpr(sexpr) => match &**sexpr {
             [] => Ok(expr.clone()),
             [expr] => eval(env, expr),
             [oper, exprs @ ..] => match eval(env, oper) {
-                Ok(Expr::Sym(sym)) => env.lookup(&sym),
+                Ok(Expr::Sym(sym)) => environment::lookup(env, &sym),
                 Ok(Expr::SExpr(_)) => eval(env, oper),
                 Ok(Expr::Fun(Function::Core(_, cf))) => cf(env, exprs),
                 Ok(Expr::Fun(Function::Lambda(syms, body, mut hmap))) => {
                     eval_lambda(env, syms, body, &mut hmap, exprs)
+                }
+                Ok(Expr::QExpr(q)) => {
+                    let mut s: Vec<Box<Expr>> = vec![];
+                    s.push(Box::new(Expr::SExpr(q)));
+                    s.extend_from_slice(&exprs);
+                    eval(env, &Expr::SExpr(s))
                 }
                 _ => Err(Error::InvalidOp(*oper.clone())),
             },
@@ -26,7 +33,7 @@ pub fn eval(env: &mut Env, expr: &Expr) -> Result<Expr, Error> {
 }
 
 fn eval_lambda(
-    parent: &mut Env,
+    parent: &Env,
     formals: Vec<Symbol>,
     body: Box<Expr>,
     hmap: &mut HashMap<Symbol, Expr>,
@@ -43,9 +50,8 @@ fn eval_lambda(
 
             match unbound_formals.is_empty() {
                 true => {
-                    // No parent env for now
-                    let mut env = Env::new(hmap.clone(), None);
-                    env.load_core_fns();
+                    let mut env = environment::new(hmap.clone(), Some(Rc::clone(parent)));
+                    environment::load_core_fns(&env);
                     let expr: Expr = Expr::SExpr(vec![
                         Box::new(Expr::Sym(Symbol::QExprOp(crate::types::QExprOp::Eval))),
                         body,

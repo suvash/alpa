@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::environment::Env;
+use crate::environment::{self, Env};
 use crate::evaluator;
 use crate::ntypes::Sankhya;
 use crate::types::{Error, Expr, Function, NumOp, QExprOp, QExprsOp, SExprOp};
@@ -157,11 +157,11 @@ macro_rules! qexprs_assign_fn {
 }
 
 qexprs_assign_fn!(qexprs_def, env, pair, {
-    env.bind_global_symbol(pair.0, pair.1.clone());
+    environment::bind_global_symbol(env, pair.0, &pair.1);
 });
 
 qexprs_assign_fn!(qexprs_put, env, pair, {
-    env.bind_local_symbol(pair.0, pair.1.clone());
+    environment::bind_local_symbol(env, pair.0, pair.1);
 });
 
 pub fn qexprs_lambda(_env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {

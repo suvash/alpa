@@ -1,71 +1,83 @@
-use std::collections::HashMap;
+use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use crate::core::{self, CoreFn};
 use crate::types::{Error, Expr, Function, NumOp, QExprOp, QExprsOp, SExprOp, Symbol};
 
 #[derive(Debug)]
-pub struct Env<'a> {
-    local: HashMap<Symbol, Expr>,
-    pub parent: Option<&'a mut Env<'a>>,
+pub struct EnvCtx {
+    data: RefCell<HashMap<Symbol, Expr>>,
+    pub parent: Option<Env>,
 }
 
-impl<'b> Env<'b> {
-    pub fn new(local: HashMap<Symbol, Expr>, parent: Option<&'b mut Env<'b>>) -> Self {
-        Env { local, parent }
-    }
+pub type Env = Rc<EnvCtx>;
 
-    pub fn lookup(&self, symbol: &Symbol) -> Result<Expr, Error> {
-        match self.local.get(symbol) {
-            Some(expr) => Ok(expr.clone()),
-            None => match &self.parent {
-                None => Err(Error::UnboundSymbol(symbol.clone())),
-                Some(parent) => parent.lookup(symbol),
-            },
-        }
-    }
+pub fn new(hmap: HashMap<Symbol, Expr>, parent: Option<Env>) -> Env {
+    Rc::new(EnvCtx {
+        data: RefCell::new(hmap),
+        parent,
+    })
+}
 
-    fn insert_or_update(&mut self, symbol: &Symbol, expr: Expr) {
-        let sym_entry = self.local.entry(symbol.clone()).or_insert(expr.clone());
-        *sym_entry = expr;
+pub fn lookup(env: &Env, symbol: &Symbol) -> Result<Expr, Error> {
+    match env.data.borrow().get(symbol) {
+        Some(expr) => Ok(expr.clone()),
+        None => match &env.parent {
+            None => Err(Error::UnboundSymbol(symbol.clone())),
+            Some(parent) => lookup(&parent, symbol),
+        },
     }
+}
 
-    pub fn bind_local_symbol(&mut self, symbol: &Symbol, expr: Expr) {
-        self.insert_or_update(symbol, expr)
-    }
+fn insert(env: &Env, symbol: &Symbol, expr: &Expr) {
+    env.data.borrow_mut().insert(symbol.clone(), expr.clone());
+}
 
-    fn root(&mut self) -> &mut Self {
-        match self.parent {
-            None => self,
-            Some(ref mut parent) => parent.root(),
-        }
-    }
+pub fn bind_local_symbol(env: &Env, symbol: &Symbol, expr: &Expr) {
+    insert(env, symbol, expr);
+}
 
-    pub fn bind_global_symbol(&mut self, symbol: &Symbol, expr: Expr) {
-        self.root().bind_local_symbol(symbol, expr)
+fn root(env: &Env) -> &Env {
+    match &env.parent {
+        None => env,
+        Some(parenv) => root(&parenv),
     }
+}
 
-    fn bind_core_fn(&mut self, symbol: &Symbol, func: CoreFn) {
-        self.insert_or_update(symbol, Expr::Fun(Function::Core(symbol.clone(), func)))
-    }
+pub fn bind_global_symbol(env: &Env, symbol: &Symbol, expr: &Expr) {
+    root(env)
+        .data
+        .borrow_mut()
+        .insert(symbol.clone(), expr.clone());
+}
 
-    pub fn load_core_fns(&mut self) {
-        self.bind_core_fn(&Symbol::NumOp(NumOp::Add), core::nums_add);
-        self.bind_core_fn(&Symbol::NumOp(NumOp::Subtract), core::nums_subtract);
-        self.bind_core_fn(&Symbol::NumOp(NumOp::Multiply), core::nums_multiply);
-        self.bind_core_fn(&Symbol::NumOp(NumOp::Divide), core::nums_divide);
-        self.bind_core_fn(&Symbol::NumOp(NumOp::Multiply), core::nums_multiply);
-        self.bind_core_fn(&Symbol::QExprOp(QExprOp::First), core::qexpr_first);
-        self.bind_core_fn(&Symbol::QExprOp(QExprOp::Rest), core::qexpr_rest);
-        self.bind_core_fn(&Symbol::QExprOp(QExprOp::Len), core::qexpr_len);
-        self.bind_core_fn(&Symbol::QExprOp(QExprOp::Eval), core::qexpr_eval);
-        self.bind_core_fn(&Symbol::QExprsOp(QExprsOp::Cons), core::qexprs_cons);
-        self.bind_core_fn(&Symbol::QExprsOp(QExprsOp::Join), core::qexprs_join);
-        self.bind_core_fn(&Symbol::QExprsOp(QExprsOp::Def), core::qexprs_def);
-        self.bind_core_fn(&Symbol::QExprsOp(QExprsOp::Put), core::qexprs_put);
-        self.bind_core_fn(&Symbol::QExprsOp(QExprsOp::Lambda), core::qexprs_lambda);
-        self.bind_core_fn(&Symbol::SExprOp(SExprOp::Quote), core::sexpr_quote);
-        self.bind_core_fn(&Symbol::SExprOp(SExprOp::PrintEnv), core::sexpr_printenv);
-    }
+fn bind_global_core_fn(env: &Env, symbol: Symbol, func: CoreFn) {
+    root(env)
+        .data
+        .borrow_mut()
+        .insert(symbol.clone(), Expr::Fun(Function::Core(symbol, func)));
+}
+
+pub fn load_core_fns(env: &Env) {
+    bind_global_core_fn(env, Symbol::NumOp(NumOp::Add), core::nums_add);
+    bind_global_core_fn(env, Symbol::NumOp(NumOp::Subtract), core::nums_subtract);
+    bind_global_core_fn(env, Symbol::NumOp(NumOp::Multiply), core::nums_multiply);
+    bind_global_core_fn(env, Symbol::NumOp(NumOp::Divide), core::nums_divide);
+    bind_global_core_fn(env, Symbol::NumOp(NumOp::Multiply), core::nums_multiply);
+    bind_global_core_fn(env, Symbol::QExprOp(QExprOp::First), core::qexpr_first);
+    bind_global_core_fn(env, Symbol::QExprOp(QExprOp::Rest), core::qexpr_rest);
+    bind_global_core_fn(env, Symbol::QExprOp(QExprOp::Len), core::qexpr_len);
+    bind_global_core_fn(env, Symbol::QExprOp(QExprOp::Eval), core::qexpr_eval);
+    bind_global_core_fn(env, Symbol::QExprsOp(QExprsOp::Cons), core::qexprs_cons);
+    bind_global_core_fn(env, Symbol::QExprsOp(QExprsOp::Join), core::qexprs_join);
+    bind_global_core_fn(env, Symbol::QExprsOp(QExprsOp::Def), core::qexprs_def);
+    bind_global_core_fn(env, Symbol::QExprsOp(QExprsOp::Put), core::qexprs_put);
+    bind_global_core_fn(env, Symbol::QExprsOp(QExprsOp::Lambda), core::qexprs_lambda);
+    bind_global_core_fn(env, Symbol::SExprOp(SExprOp::Quote), core::sexpr_quote);
+    bind_global_core_fn(
+        env,
+        Symbol::SExprOp(SExprOp::PrintEnv),
+        core::sexpr_printenv,
+    );
 }
 
 #[cfg(test)]
