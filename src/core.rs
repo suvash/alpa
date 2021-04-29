@@ -134,9 +134,9 @@ macro_rules! qexprs_assign_fn {
                                 })
 				.partition(Result::is_ok);
 
-			    match &non_syms[..] {
-				[first, _rest @ ..] => first.clone(),
-				[] => Ok(Expr::SExpr(vec![]))
+			    match non_syms.first() {
+				Some(first) => first.clone(),
+				None => Ok(Expr::SExpr(vec![]))
 			    }
                         }
                         false => Err(Error::UnEqualDefList(*first.clone(), rest.to_vec())),
@@ -173,9 +173,9 @@ pub fn qexprs_lambda(_env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error>
                     x => non_sym_exprs.push(x.clone()),
                 });
 
-                match non_sym_exprs.as_slice() {
-                    [first, _rest @ ..] => Err(Error::NotASymbol(first.clone())),
-                    [] => Ok(Expr::Fun(Function::Lambda(
+                match non_sym_exprs.first() {
+                    Some(first) => Err(Error::NotASymbol(first.clone())),
+                    None => Ok(Expr::Fun(Function::Lambda(
                         sym_exprs,
                         Box::new(Expr::QExpr(body.clone())),
                         HashMap::new(),
