@@ -12,8 +12,12 @@ pub fn eval(env: &mut Env, expr: &Expr) -> Result<Expr, Error> {
             [] => Ok(expr.clone()),
             [expr] => eval(env, expr),
             [oper, exprs @ ..] => match eval(env, oper) {
-                Ok(Expr::Sym(sym)) => environment::lookup(env, &sym),
-                Ok(Expr::SExpr(_)) => eval(env, oper),
+                Ok(Expr::Sym(sym)) => {
+		    let mut n_exprs = vec![];
+		    n_exprs.push(Box::new(environment::lookup(env, &sym)?));
+		    n_exprs.extend_from_slice(exprs);
+		    eval(env, &Expr::SExpr(n_exprs))
+		}
                 Ok(Expr::Fun(Function::Core(_, cf))) => cf(env, exprs),
                 Ok(Expr::Fun(Function::Lambda(syms, body, mut hmap))) => {
                     eval_lambda(env, syms, body, &mut hmap, exprs)
@@ -45,12 +49,10 @@ fn eval_lambda(
             match unbound_formals.is_empty() {
                 true => {
                     let mut env = environment::new(hmap.clone(), Some(Rc::clone(parent)));
-                    environment::load_core_fns(&env);
                     let expr: Expr = Expr::SExpr(vec![
                         Box::new(Expr::Sym(Symbol::QExprOp(crate::types::QExprOp::Eval))),
                         body,
                     ]);
-                    println!("{:?}", &expr);
                     eval(&mut env, &expr)
                 }
                 false => Ok(Expr::Fun(Function::Lambda(
