@@ -201,7 +201,6 @@ pub enum Error {
     InvalidNumberOfQExprArguments(QExprOp, usize),
     InvalidNumberOfQExprsArguments(QExprsOp, usize),
     InvalidNumberOfSExprArguments(SExprOp, usize),
-    TooManyLambdaArguments(usize, usize),
     EmptyQExpr(Expr),
     InvalidOp(Expr),
     NotANumber(Expr),

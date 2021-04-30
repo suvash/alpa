@@ -13,11 +13,11 @@ pub fn eval(env: &mut Env, expr: &Expr) -> Result<Expr, Error> {
             [expr] => eval(env, expr),
             [oper, exprs @ ..] => match eval(env, oper) {
                 Ok(Expr::Sym(sym)) => {
-		    let mut n_exprs = vec![];
-		    n_exprs.push(Box::new(environment::lookup(env, &sym)?));
-		    n_exprs.extend_from_slice(exprs);
-		    eval(env, &Expr::SExpr(n_exprs))
-		}
+                    let mut n_exprs = vec![];
+                    n_exprs.push(Box::new(environment::lookup(env, &sym)?));
+                    n_exprs.extend_from_slice(exprs);
+                    eval(env, &Expr::SExpr(n_exprs))
+                }
                 Ok(Expr::Fun(Function::Core(_, cf))) => cf(env, exprs),
                 Ok(Expr::Fun(Function::Lambda(syms, body, mut hmap))) => {
                     eval_lambda(env, syms, body, &mut hmap, exprs)
@@ -37,31 +37,74 @@ fn eval_lambda(
     hmap: &mut HashMap<Symbol, Expr>,
     args: &[Box<Expr>],
 ) -> Result<Expr, Error> {
-    match args.len() > formals.len() {
-        true => Err(Error::TooManyLambdaArguments(formals.len(), args.len())),
-        false => {
-            let (formals_to_bind, unbound_formals) = &formals.split_at(args.len());
+    let rest_sym = Symbol::Identifier("ऽ".to_string());
+    match &*formals {
+        [head_formals @ .., rest, rest_formal] if rest == &rest_sym => {
+            println!("{:?}' {:?}, {:?}", head_formals, rest_sym, rest_formal);
 
-            formals_to_bind.iter().zip(args.iter()).for_each(|z| {
-                hmap.insert(z.0.clone(), *z.1.clone());
-            });
-
-            match unbound_formals.is_empty() {
+            match head_formals.len() <= args.len() {
                 true => {
+                    let (args_to_bind, rest_args) = &args.split_at(head_formals.len());
+                    head_formals.iter().zip(args_to_bind.iter()).for_each(|z| {
+                        hmap.insert(z.0.clone(), *z.1.clone());
+                    });
+                    hmap.insert(rest_formal.clone(), Expr::QExpr(rest_args.to_vec()));
+
                     let mut env = environment::new(hmap.clone(), Some(Rc::clone(parent)));
                     let expr: Expr = Expr::SExpr(vec![
                         Box::new(Expr::Sym(Symbol::QExprOp(crate::types::QExprOp::Eval))),
                         body,
                     ]);
+
                     eval(&mut env, &expr)
                 }
-                false => Ok(Expr::Fun(Function::Lambda(
-                    unbound_formals.to_vec(),
-                    body,
-                    hmap.clone(),
-                ))),
+                false => {
+                    let (formals_to_bind, rest_formals) = &head_formals.split_at(args.len());
+                    formals_to_bind.iter().zip(args.iter()).for_each(|z| {
+                        hmap.insert(z.0.clone(), *z.1.clone());
+                    });
+
+                    let mut unbound_formals = rest_formals.to_vec();
+                    unbound_formals.push(rest_sym.clone());
+                    unbound_formals.push(rest_formal.clone());
+
+                    Ok(Expr::Fun(Function::Lambda(
+                        unbound_formals.to_vec(),
+                        body,
+                        hmap.clone(),
+                    )))
+                }
             }
         }
+        _ => match formals.len() <= args.len() {
+            true => {
+                let (args_to_bind, rest_args) = &args.split_at(formals.len());
+                formals.iter().zip(args_to_bind.iter()).for_each(|z| {
+                    hmap.insert(z.0.clone(), *z.1.clone());
+                });
+                hmap.insert(rest_sym.clone(), Expr::QExpr(rest_args.to_vec()));
+
+                let mut env = environment::new(hmap.clone(), Some(Rc::clone(parent)));
+                let expr: Expr = Expr::SExpr(vec![
+                    Box::new(Expr::Sym(Symbol::QExprOp(crate::types::QExprOp::Eval))),
+                    body,
+                ]);
+
+                eval(&mut env, &expr)
+            }
+            false => {
+                let (formals_to_bind, rest_formals) = &formals.split_at(args.len());
+                formals_to_bind.iter().zip(args.iter()).for_each(|z| {
+                    hmap.insert(z.0.clone(), *z.1.clone());
+                });
+
+                Ok(Expr::Fun(Function::Lambda(
+                    rest_formals.to_vec(),
+                    body,
+                    hmap.clone(),
+                )))
+            }
+        },
     }
 }
 

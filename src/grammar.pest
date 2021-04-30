@@ -28,7 +28,7 @@ symbol = { numbers_op | qexpr_op | qexprs_op | sexpr_op | identifier }
   sexpr_op = { quote | printenv }
     quote = { "उद्धरण" }
     printenv = { "वातावरण" }
-  identifier = @{ (chinha | swar | byanjan | maatraa | halanta | purnabiram | chhotkari | aum | anka | "_")+ }
+  identifier = @{ (chinha | swar | byanjan | maatraa | halanta | purnabiram | chhotkari | avagraha | aum | anka | "_")+ }
     // See https://www.unicode.org/charts/PDF/U0900.pdf for details
     // only picking valid नेपाली (nepali) parts, not the entire devanagari chart
     // including underscore
@@ -40,6 +40,7 @@ symbol = { numbers_op | qexpr_op | qexprs_op | sexpr_op | identifier }
     halanta = { "्" }
     purnabiram = { "।" }
     chhotkari = { "॰" }
+    avagraha = { "ऽ" }
     aum = { "ॐ" }
 
 number = @{ ( "+" | "-" )? ~ sankhya }
