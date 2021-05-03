@@ -63,6 +63,14 @@ pub fn load_core_fns(env: &Env) {
     bind_global_core_fn(env, Symbol::NumOp(NumOp::Multiply), core::nums_multiply);
     bind_global_core_fn(env, Symbol::NumOp(NumOp::Divide), core::nums_divide);
     bind_global_core_fn(env, Symbol::NumOp(NumOp::Multiply), core::nums_multiply);
+    bind_global_core_fn(env, Symbol::NumOp(NumOp::GreaterThan), core::nums_gt);
+    bind_global_core_fn(
+        env,
+        Symbol::NumOp(NumOp::GreaterThanOrEqual),
+        core::nums_gte,
+    );
+    bind_global_core_fn(env, Symbol::NumOp(NumOp::LessThan), core::nums_lt);
+    bind_global_core_fn(env, Symbol::NumOp(NumOp::LessThanOrEqual), core::nums_lte);
     bind_global_core_fn(env, Symbol::QExprOp(QExprOp::First), core::qexpr_first);
     bind_global_core_fn(env, Symbol::QExprOp(QExprOp::Rest), core::qexpr_rest);
     bind_global_core_fn(env, Symbol::QExprOp(QExprOp::Len), core::qexpr_len);

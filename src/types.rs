@@ -10,6 +10,10 @@ pub enum NumOp {
     Subtract,
     Multiply,
     Divide,
+    GreaterThan,
+    GreaterThanOrEqual,
+    LessThan,
+    LessThanOrEqual,
 }
 
 impl fmt::Display for NumOp {
@@ -19,6 +23,10 @@ impl fmt::Display for NumOp {
             NumOp::Subtract => write!(f, "-"),
             NumOp::Multiply => write!(f, "*"),
             NumOp::Divide => write!(f, "/"),
+            NumOp::GreaterThan => write!(f, ">"),
+            NumOp::GreaterThanOrEqual => write!(f, ">="),
+            NumOp::LessThan => write!(f, "<"),
+            NumOp::LessThanOrEqual => write!(f, "<="),
         }
     }
 }

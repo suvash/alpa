@@ -96,6 +96,10 @@ fn parse_numbers_op(pair: Pair<Rule>) -> Expr {
         Rule::subtract => NumOp::Subtract,
         Rule::multiply => NumOp::Multiply,
         Rule::divide => NumOp::Divide,
+        Rule::gt => NumOp::GreaterThan,
+        Rule::gte => NumOp::GreaterThanOrEqual,
+        Rule::lt => NumOp::LessThan,
+        Rule::lte => NumOp::LessThanOrEqual,
         _ => unreachable!(),
     };
 

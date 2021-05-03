@@ -14,11 +14,15 @@ number = @{ ( "+" | "-" )? ~ sankhya }
   sankhya = { anka+ }
 
 symbol = { numbers_op | qexpr_op | qexprs_op | sexpr_op | identifier }
-  numbers_op = { add | subtract | multiply | divide }
+  numbers_op = { add | subtract | multiply | divide | gte | gt | lte | lt }
     add      = { "+" } // "जोड"
     subtract = { "-" } // "घटाऊ"
     multiply = { "*" } // "गुणन"
     divide   = { "/" } // "भाग"
+    gte = { ">=" } // ठुलो अथवा बराबर
+    gt = { ">" } // ठुलो
+    lte = { "<=" } // सानो अथवा बराबर
+    lt = { "<" } // सानो
   qexpr_op = { first | rest | len | eval }
     first = { "पहिलो" }
     rest = { "बाँकी" }

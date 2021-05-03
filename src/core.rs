@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::environment::{self, Env};
 use crate::evaluator;
 use crate::ntypes::Sankhya;
-use crate::types::{Error, Expr, Function, NumOp, QExprOp, QExprsOp, SExprOp};
+use crate::types::{Error, Expr, Boolean, Function, NumOp, QExprOp, QExprsOp, SExprOp};
 
 pub type CoreFn = fn(&mut Env, &[Box<Expr>]) -> Result<Expr, Error>;
 
@@ -43,6 +43,22 @@ nums_fn!(nums_divide, NumOp::Divide, x, y, {
         0 => Err(Error::DivideByZero(x, y)),
         _ => Ok(Expr::Num(Sankhya(x.0 / y.0))),
     }
+});
+
+nums_fn!(nums_gt, NumOp::GreaterThan, x, y, {
+    Ok(Expr::Bool(Boolean(x.0 > y.0)))
+});
+
+nums_fn!(nums_gte, NumOp::GreaterThanOrEqual, x, y, {
+    Ok(Expr::Bool(Boolean(x.0 >= y.0)))
+});
+
+nums_fn!(nums_lt, NumOp::LessThan, x, y, {
+    Ok(Expr::Bool(Boolean(x.0 < y.0)))
+});
+
+nums_fn!(nums_lte, NumOp::LessThanOrEqual, x, y, {
+    Ok(Expr::Bool(Boolean(x.0 <= y.0)))
 });
 
 macro_rules! qexpr_fn {
