@@ -3,7 +3,7 @@ use pest::iterators::Pair;
 use pest::Parser;
 
 use crate::ntypes::Sankhya;
-use crate::types::{Expr, NumOp, QExprOp, QExprsOp, SExprOp, Symbol};
+use crate::types::{Boolean, Expr, NumOp, QExprOp, QExprsOp, SExprOp, Symbol};
 
 #[derive(pest_derive::Parser)]
 #[grammar = "grammar.pest"]
@@ -48,10 +48,21 @@ fn parse_expression(pair: Pair<Rule>) -> Expr {
     let pair = pair.into_inner().next().unwrap();
 
     match pair.as_rule() {
+        Rule::boolean => parse_boolean(pair),
         Rule::number => parse_number(pair),
         Rule::symbol => parse_symbol(pair),
         Rule::sexpr => parse_s_expression(pair),
         Rule::qexpr => parse_q_expression(pair),
+        _ => unreachable!(),
+    }
+}
+
+fn parse_boolean(pair: Pair<Rule>) -> Expr {
+    let pair = pair.into_inner().next().unwrap();
+
+    match pair.as_rule() {
+        Rule::satya => Expr::Bool(Boolean(true)),
+        Rule::galat => Expr::Bool(Boolean(false)),
         _ => unreachable!(),
     }
 }

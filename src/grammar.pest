@@ -2,11 +2,16 @@ alpa = _{SOI ~ program ~ EOI }
 
 program = { expr* }
 
-expr = { number | symbol | sexpr | qexpr }
+expr = { boolean | number | symbol | sexpr | qexpr }
 
-sexpr = { "(" ~ expr* ~ ")"}
+boolean = { satya | galat } // true false are rust keywords
+  satya = { "सत्य" }
+  galat = { "गलत" }
 
-qexpr = { "'(" ~ expr* ~ ")"}
+anka = { "०" | "१" | "२" | "३" | "४" | "५" | "६" | "७" | "८" | "९" }
+
+number = @{ ( "+" | "-" )? ~ sankhya }
+  sankhya = { anka+ }
 
 symbol = { numbers_op | qexpr_op | qexprs_op | sexpr_op | identifier }
   numbers_op = { add | subtract | multiply | divide }
@@ -36,15 +41,14 @@ symbol = { numbers_op | qexpr_op | qexprs_op | sexpr_op | identifier }
     swar = { "अ" | "आ" | "इ" | "ई" | "उ" | "ऊ" | "ए" | "ऐ" | "ओ" | "ओ" | "ऋ" }
     byanjan = { "क" | "ख" | "ग" | "घ" | "ङ" | "च" | "छ" | "ज" | "झ" | "ञ" | "ट" | "ठ" | "ड" | "ढ" | "ण" | "त" | "थ" | "द" | "ध" | "न" | "प" | "फ" | "ब" | "भ" | "म" | "य" | "र" | "ल" | "व" | "श" | "ष" | "स" | "ह" }
     maatraa = { "ा" | "ि" | "ी" | "ु" | "ू" | "ृ" | "े" | "ै" | "ो" | "ौ" }
-    anka = { "०" | "१" | "२" | "३" | "४" | "५" | "६" | "७" | "८" | "९" }
     halanta = { "्" }
     purnabiram = { "।" }
     chhotkari = { "॰" }
     avagraha = { "ऽ" }
     aum = { "ॐ" }
 
-number = @{ ( "+" | "-" )? ~ sankhya }
-  sankhya = { anka+ }
+sexpr = { "(" ~ expr* ~ ")"}
 
+qexpr = { "'(" ~ expr* ~ ")"}
 
 WHITESPACE = _{ " " | "\t" }

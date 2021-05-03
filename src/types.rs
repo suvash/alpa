@@ -79,6 +79,20 @@ impl fmt::Display for SExprOp {
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Hash)]
+pub struct Boolean(pub bool);
+
+impl fmt::Display for Boolean {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let formatted = match self.0 {
+            true => "सत्य",
+            false => "गलत",
+        };
+
+        write!(f, "बुलियन({})", formatted)
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Hash)]
 pub enum Symbol {
     Identifier(String),
     NumOp(NumOp),
@@ -147,6 +161,7 @@ impl fmt::Display for Function {
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Expr {
+    Bool(Boolean),
     Num(Sankhya),
     Sym(Symbol),
     SExpr(Vec<Box<Expr>>),
@@ -157,6 +172,7 @@ pub enum Expr {
 impl fmt::Display for Expr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
+            Expr::Bool(b) => write!(f, "{}", b),
             Expr::Num(n) => write!(f, "{}", n),
             Expr::Sym(s) => match s {
                 Symbol::Identifier(s) => write!(f, "{}", s),

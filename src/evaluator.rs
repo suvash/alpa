@@ -6,6 +6,7 @@ use crate::types::{Error, Expr, Function, Symbol};
 
 pub fn eval(env: &mut Env, expr: &Expr) -> Result<Expr, Error> {
     match expr {
+        Expr::Bool(_) => Ok(expr.clone()),
         Expr::Num(_) => Ok(expr.clone()),
         Expr::Sym(sym) => environment::lookup(env, &sym),
         Expr::SExpr(sexpr) => match &**sexpr {
