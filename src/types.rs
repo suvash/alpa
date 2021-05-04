@@ -162,6 +162,9 @@ impl PartialEq for Function {
         use Function::*;
         match (self, other) {
             (Core(self_sym, _), Core(other_sym, _)) => self_sym == other_sym,
+            (Lambda(s_syms, s_expr, s_hmap), Lambda(o_syms, o_expr, o_hmap)) => {
+                s_syms == o_syms && s_expr == o_expr && s_hmap == o_hmap
+            }
             _ => false,
         }
     }
@@ -238,6 +241,7 @@ impl fmt::Display for Expr {
 pub enum Error {
     DivideByZero(Sankhya, Sankhya),
     InvalidNumberOfNumArguments(NumOp, usize),
+    InvalidNumberOfExprsArguments(ExprsOp, usize),
     InvalidNumberOfQExprArguments(QExprOp, usize),
     InvalidNumberOfQExprsArguments(QExprsOp, usize),
     InvalidNumberOfSExprArguments(SExprOp, usize),

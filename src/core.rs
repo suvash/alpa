@@ -3,9 +3,29 @@ use std::collections::HashMap;
 use crate::environment::{self, Env};
 use crate::evaluator;
 use crate::ntypes::Sankhya;
-use crate::types::{Boolean, Error, Expr, Function, NumOp, QExprOp, QExprsOp, SExprOp};
+use crate::types::{Boolean, Error, Expr, ExprsOp, Function, NumOp, QExprOp, QExprsOp, SExprOp};
 
 pub type CoreFn = fn(&mut Env, &[Box<Expr>]) -> Result<Expr, Error>;
+
+pub fn exprs_equal(env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
+    match &exprs[..] {
+        [expr1, expr2] => match (
+            evaluator::eval(env, &**expr1)?,
+            evaluator::eval(env, &**expr2)?,
+        ) {
+            // other matches not needed because the evaluation reduces them
+            (Expr::Bool(b1), Expr::Bool(b2)) => Ok(Expr::Bool(Boolean(b1 == b2))),
+            (Expr::Num(n1), Expr::Num(n2)) => Ok(Expr::Bool(Boolean(n1 == n2))),
+            (Expr::QExpr(q1), Expr::QExpr(q2)) => Ok(Expr::Bool(Boolean(q1 == q2))),
+            (Expr::Fun(f1), Expr::Fun(f2)) => Ok(Expr::Bool(Boolean(f1 == f2))),
+            _ => Ok(Expr::Bool(Boolean(false))),
+        },
+        _ => Err(Error::InvalidNumberOfExprsArguments(
+            ExprsOp::Equal,
+            exprs.len(),
+        )),
+    }
+}
 
 macro_rules! nums_fn {
     ($fn_name:ident, $op:expr, $x:ident, $y:ident, $x_y_body:block) => {
