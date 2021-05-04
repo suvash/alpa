@@ -21,37 +21,37 @@ symbol = { exprs_op | numbers_op | qexpr_op | qexprs_op | sexpr_op | identifier 
     subtract = { "-" } // "घटाऊ"
     multiply = { "*" } // "गुणन"
     divide   = { "/" } // "भाग"
-    gte = { ">=" } // ठुलो अथवा बराबर
-    gt = { ">" } // ठुलो
-    lte = { "<=" } // सानो अथवा बराबर
-    lt = { "<" } // सानो
+    gte      = { ">=" } // ठुलो अथवा बराबर
+    gt       = { ">" } // ठुलो
+    lte      = { "<=" } // सानो अथवा बराबर
+    lt       = { "<" } // सानो
   qexpr_op = { first | rest | len | eval }
-    first = { "पहिलो" }
-    rest = { "बाँकी" }
-    len = { "वटा" }
-    eval = { "बिस्तार" }
+    first  = { "पहिलो" }
+    rest   = { "बाँकी" }
+    len    = { "वटा" }
+    eval   = { "बिस्तार" }
   qexprs_op = { cons | join | def | put | lambda }
-    cons = { "निर्माण" }
-    join = { "एकत्र" }
-    def = { "नामक" }
-    put = { "=" }
-    lambda = { "\\" }
-  sexpr_op = { quote | printenv }
-    quote = { "उद्धरण" }
+    cons    = { "निर्माण" }
+    join    = { "एकत्र" }
+    def     = { "नामक" }
+    put     = { "=" }
+    lambda  = { "\\" }
+  sexpr_op   = { quote | printenv }
+    quote    = { "उद्धरण" }
     printenv = { "वातावरण" }
   identifier = @{ (chinha | swar | byanjan | maatraa | halanta | purnabiram | chhotkari | avagraha | aum | anka | "_")+ }
     // See https://www.unicode.org/charts/PDF/U0900.pdf for details
     // only picking valid नेपाली (nepali) parts, not the entire devanagari chart
     // including underscore
-    chinha = { "ँ" | "ं" | "ः" }
-    swar = { "अ" | "आ" | "इ" | "ई" | "उ" | "ऊ" | "ए" | "ऐ" | "ओ" | "ओ" | "ऋ" }
-    byanjan = { "क" | "ख" | "ग" | "घ" | "ङ" | "च" | "छ" | "ज" | "झ" | "ञ" | "ट" | "ठ" | "ड" | "ढ" | "ण" | "त" | "थ" | "द" | "ध" | "न" | "प" | "फ" | "ब" | "भ" | "म" | "य" | "र" | "ल" | "व" | "श" | "ष" | "स" | "ह" }
-    maatraa = { "ा" | "ि" | "ी" | "ु" | "ू" | "ृ" | "े" | "ै" | "ो" | "ौ" }
-    halanta = { "्" }
+    chinha     = { "ँ" | "ं" | "ः" }
+    swar       = { "अ" | "आ" | "इ" | "ई" | "उ" | "ऊ" | "ए" | "ऐ" | "ओ" | "ओ" | "ऋ" }
+    byanjan    = { "क" | "ख" | "ग" | "घ" | "ङ" | "च" | "छ" | "ज" | "झ" | "ञ" | "ट" | "ठ" | "ड" | "ढ" | "ण" | "त" | "थ" | "द" | "ध" | "न" | "प" | "फ" | "ब" | "भ" | "म" | "य" | "र" | "ल" | "व" | "श" | "ष" | "स" | "ह" }
+    maatraa    = { "ा" | "ि" | "ी" | "ु" | "ू" | "ृ" | "े" | "ै" | "ो" | "ौ" }
+    halanta    = { "्" }
     purnabiram = { "।" }
-    chhotkari = { "॰" }
-    avagraha = { "ऽ" }
-    aum = { "ॐ" }
+    chhotkari  = { "॰" }
+    avagraha   = { "ऽ" }
+    aum        = { "ॐ" }
 
 sexpr = { "(" ~ expr* ~ ")"}
 
