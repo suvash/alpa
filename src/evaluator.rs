@@ -46,9 +46,11 @@ fn eval_lambda(
             match head_formals.len() <= args.len() {
                 true => {
                     let (args_to_bind, rest_args) = &args.split_at(head_formals.len());
-                    head_formals.iter().zip(args_to_bind.iter()).for_each(|z| {
-                        hmap.insert(z.0.clone(), *z.1.clone());
-                    });
+                    for z in head_formals.iter().zip(args_to_bind.iter()) {
+                        let mut f_env = environment::new(hmap.clone(), Some(Rc::clone(parent)));
+                        let val = eval(&mut f_env, &*z.1)?;
+                        hmap.insert(z.0.clone(), val);
+                    }
                     hmap.insert(rest_formal.clone(), Expr::QExpr(rest_args.to_vec()));
 
                     let mut env = environment::new(hmap.clone(), Some(Rc::clone(parent)));
@@ -61,9 +63,11 @@ fn eval_lambda(
                 }
                 false => {
                     let (formals_to_bind, rest_formals) = &head_formals.split_at(args.len());
-                    formals_to_bind.iter().zip(args.iter()).for_each(|z| {
-                        hmap.insert(z.0.clone(), *z.1.clone());
-                    });
+                    for z in formals_to_bind.iter().zip(args.iter()) {
+                        let mut f_env = environment::new(hmap.clone(), Some(Rc::clone(parent)));
+                        let val = eval(&mut f_env, &*z.1)?;
+                        hmap.insert(z.0.clone(), val);
+                    }
 
                     let mut unbound_formals = rest_formals.to_vec();
                     unbound_formals.push(rest_sym.clone());
@@ -80,9 +84,11 @@ fn eval_lambda(
         _ => match formals.len() <= args.len() {
             true => {
                 let (args_to_bind, rest_args) = &args.split_at(formals.len());
-                formals.iter().zip(args_to_bind.iter()).for_each(|z| {
-                    hmap.insert(z.0.clone(), *z.1.clone());
-                });
+                for z in formals.iter().zip(args_to_bind.iter()) {
+                    let mut f_env = environment::new(hmap.clone(), Some(Rc::clone(parent)));
+                    let val = eval(&mut f_env, &*z.1)?;
+                    hmap.insert(z.0.clone(), val);
+                }
                 hmap.insert(rest_sym.clone(), Expr::QExpr(rest_args.to_vec()));
 
                 let mut env = environment::new(hmap.clone(), Some(Rc::clone(parent)));
@@ -95,9 +101,11 @@ fn eval_lambda(
             }
             false => {
                 let (formals_to_bind, rest_formals) = &formals.split_at(args.len());
-                formals_to_bind.iter().zip(args.iter()).for_each(|z| {
-                    hmap.insert(z.0.clone(), *z.1.clone());
-                });
+                for z in formals_to_bind.iter().zip(args.iter()) {
+                    let mut f_env = environment::new(hmap.clone(), Some(Rc::clone(parent)));
+                    let val = eval(&mut f_env, &*z.1)?;
+                    hmap.insert(z.0.clone(), val);
+                }
 
                 Ok(Expr::Fun(Function::Lambda(
                     rest_formals.to_vec(),

@@ -10,11 +10,15 @@ pub type CoreFn = fn(&mut Env, &[Box<Expr>]) -> Result<Expr, Error>;
 pub fn exprs_if(env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
     match &exprs[..] {
         [cond_expr, if_expr, else_expr] => match evaluator::eval(env, &**cond_expr)? {
-            Expr::Bool(Boolean(b)) => match b {
-                true => evaluator::eval(env, &**if_expr),
-                false => evaluator::eval(env, &**else_expr),
+            Expr::Bool(Boolean(b)) => match (&**if_expr, &**else_expr) {
+                (Expr::QExpr(q1), Expr::QExpr(q2)) => match b {
+                    true => evaluator::eval(env, &Expr::SExpr(q1.to_vec())),
+                    false => evaluator::eval(env, &Expr::SExpr(q2.to_vec())),
+                },
+                (Expr::QExpr(_), x) => Err(Error::NotAQExpr(x.clone())),
+                (x, _) => Err(Error::NotAQExpr(x.clone())),
             },
-            x => Err(Error::NotABoolean(x)),
+            x => Err(Error::NotABoolean(x.clone())),
         },
         _ => Err(Error::InvalidNumberOfExprsArguments(
             ExprsOp::If,
@@ -25,21 +29,41 @@ pub fn exprs_if(env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
 
 pub fn exprs_equal(env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
     match &exprs[..] {
-        [expr1, expr2] => match (
-            evaluator::eval(env, &**expr1)?,
-            evaluator::eval(env, &**expr2)?,
-        ) {
-            // other matches not needed because the evaluation reduces them
-            (Expr::Bool(b1), Expr::Bool(b2)) => Ok(Expr::Bool(Boolean(b1 == b2))),
-            (Expr::Num(n1), Expr::Num(n2)) => Ok(Expr::Bool(Boolean(n1 == n2))),
-            (Expr::QExpr(q1), Expr::QExpr(q2)) => Ok(Expr::Bool(Boolean(q1 == q2))),
-            (Expr::Fun(f1), Expr::Fun(f2)) => Ok(Expr::Bool(Boolean(f1 == f2))),
-            _ => Ok(Expr::Bool(Boolean(false))),
-        },
+        [expr1, expr2] => exprs_compare(env, expr1, expr2),
         _ => Err(Error::InvalidNumberOfExprsArguments(
             ExprsOp::Equal,
             exprs.len(),
         )),
+    }
+}
+
+fn exprs_compare(env: &mut Env, expr1: &Expr, expr2: &Expr) -> Result<Expr, Error> {
+    match (expr1, expr2) {
+        (Expr::Bool(b1), Expr::Bool(b2)) => Ok(Expr::Bool(Boolean(b1 == b2))),
+        (Expr::Num(n1), Expr::Num(n2)) => Ok(Expr::Bool(Boolean(n1 == n2))),
+        (Expr::Sym(_), Expr::Sym(_)) => Ok(Expr::Bool(Boolean(
+            evaluator::eval(env, expr1)? == evaluator::eval(env, expr2)?,
+        ))),
+        (Expr::QExpr(q1), Expr::QExpr(q2)) => Ok(Expr::Bool(Boolean(q1 == q2))),
+        (Expr::Fun(f1), Expr::Fun(f2)) => Ok(Expr::Bool(Boolean(f1 == f2))),
+        (Expr::SExpr(_), _) => {
+            let es1 = evaluator::eval(env, expr1)?;
+            exprs_compare(env, &es1, expr2)
+        }
+        (_, Expr::SExpr(_)) => {
+            let es2 = evaluator::eval(env, expr2)?;
+            exprs_compare(env, expr1, &es2)
+        }
+        (Expr::Sym(_), _) => {
+            let es1 = evaluator::eval(env, expr1)?;
+            exprs_compare(env, &es1, expr2)
+        }
+        (_, Expr::Sym(_)) => {
+            let es2 = evaluator::eval(env, expr2)?;
+            exprs_compare(env, expr1, &es2)
+        }
+
+        _ => Ok(Expr::Bool(Boolean(false))),
     }
 }
 
