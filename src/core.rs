@@ -7,6 +7,22 @@ use crate::types::{Boolean, Error, Expr, ExprsOp, Function, NumOp, QExprOp, QExp
 
 pub type CoreFn = fn(&mut Env, &[Box<Expr>]) -> Result<Expr, Error>;
 
+pub fn exprs_if(env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
+    match &exprs[..] {
+        [cond_expr, if_expr, else_expr] => match evaluator::eval(env, &**cond_expr)? {
+            Expr::Bool(Boolean(b)) => match b {
+                true => evaluator::eval(env, &**if_expr),
+                false => evaluator::eval(env, &**else_expr),
+            },
+            x => Err(Error::NotABoolean(x)),
+        },
+        _ => Err(Error::InvalidNumberOfExprsArguments(
+            ExprsOp::If,
+            exprs.len(),
+        )),
+    }
+}
+
 pub fn exprs_equal(env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
     match &exprs[..] {
         [expr1, expr2] => match (

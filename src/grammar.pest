@@ -14,9 +14,10 @@ number = @{ ( "+" | "-" )? ~ sankhya }
   sankhya = { anka+ }
 
 symbol = { exprs_op | numbers_op | qexpr_op | qexprs_op | sexpr_op | identifier }
-  exprs_op = { equal | not_equal }
-    equal  = { "==" } // बराबर
+  exprs_op = { equal | not_equal | yadi }
+    equal      = { "==" } // बराबर
     not_equal  = { "!=" } // बराबर नभएको
+    yadi       = { "यदि" } // if is rust keyword
   numbers_op = { add | subtract | multiply | divide | gte | gt | lte | lt }
     add      = { "+" } // "जोड"
     subtract = { "-" } // "घटाऊ"

@@ -8,6 +8,7 @@ use crate::ntypes::Sankhya;
 pub enum ExprsOp {
     Equal,
     NotEqual,
+    If,
 }
 
 impl fmt::Display for ExprsOp {
@@ -15,6 +16,7 @@ impl fmt::Display for ExprsOp {
         match self {
             ExprsOp::Equal => write!(f, "=="),
             ExprsOp::NotEqual => write!(f, "!="),
+            ExprsOp::If => write!(f, "यदि"),
         }
     }
 }
@@ -249,6 +251,7 @@ pub enum Error {
     InvalidNumberOfSExprArguments(SExprOp, usize),
     EmptyQExpr(Expr),
     InvalidOp(Expr),
+    NotABoolean(Expr),
     NotANumber(Expr),
     NotASymbol(Expr),
     NotAQExpr(Expr),
