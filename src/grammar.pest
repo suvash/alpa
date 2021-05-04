@@ -13,7 +13,9 @@ anka = { "०" | "१" | "२" | "३" | "४" | "५" | "६" | "७" | "८" |
 number = @{ ( "+" | "-" )? ~ sankhya }
   sankhya = { anka+ }
 
-symbol = { numbers_op | qexpr_op | qexprs_op | sexpr_op | identifier }
+symbol = { exprs_op | numbers_op | qexpr_op | qexprs_op | sexpr_op | identifier }
+  exprs_op = { equal }
+    equal  = { "==" } // बराबर
   numbers_op = { add | subtract | multiply | divide | gte | gt | lte | lt }
     add      = { "+" } // "जोड"
     subtract = { "-" } // "घटाऊ"

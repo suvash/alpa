@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::environment::{self, Env};
 use crate::evaluator;
 use crate::ntypes::Sankhya;
-use crate::types::{Error, Expr, Boolean, Function, NumOp, QExprOp, QExprsOp, SExprOp};
+use crate::types::{Boolean, Error, Expr, Function, NumOp, QExprOp, QExprsOp, SExprOp};
 
 pub type CoreFn = fn(&mut Env, &[Box<Expr>]) -> Result<Expr, Error>;
 

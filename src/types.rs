@@ -5,6 +5,19 @@ use crate::core::CoreFn;
 use crate::ntypes::Sankhya;
 
 #[derive(Debug, PartialEq, Eq, Clone, Hash)]
+pub enum ExprsOp {
+    Equal,
+}
+
+impl fmt::Display for ExprsOp {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            ExprsOp::Equal => write!(f, "=="),
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Hash)]
 pub enum NumOp {
     Add,
     Subtract,
@@ -102,21 +115,23 @@ impl fmt::Display for Boolean {
 
 #[derive(Debug, PartialEq, Eq, Clone, Hash)]
 pub enum Symbol {
-    Identifier(String),
+    ExprsOp(ExprsOp),
     NumOp(NumOp),
     QExprOp(QExprOp),
     QExprsOp(QExprsOp),
     SExprOp(SExprOp),
+    Identifier(String),
 }
 
 impl fmt::Display for Symbol {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Symbol::Identifier(s) => write!(f, "आइडेन्टिफायर({})", s),
+            Symbol::ExprsOp(o) => write!(f, "एक्सपर्स-अप({})", o),
             Symbol::NumOp(o) => write!(f, "नम-अप({})", o),
             Symbol::QExprOp(o) => write!(f, "क्यु-एक्सपर्-अप({})", o),
             Symbol::QExprsOp(o) => write!(f, "क्यु-एक्सपर्स-अप({})", o),
             Symbol::SExprOp(o) => write!(f, "एस्-एक्सपर्-अप({})", o),
+            Symbol::Identifier(s) => write!(f, "आइडेन्टिफायर({})", s),
         }
     }
 }
@@ -183,11 +198,12 @@ impl fmt::Display for Expr {
             Expr::Bool(b) => write!(f, "{}", b),
             Expr::Num(n) => write!(f, "{}", n),
             Expr::Sym(s) => match s {
-                Symbol::Identifier(s) => write!(f, "{}", s),
+                Symbol::ExprsOp(o) => write!(f, "{}", o),
                 Symbol::NumOp(o) => write!(f, "{}", o),
                 Symbol::QExprOp(o) => write!(f, "{}", o),
                 Symbol::QExprsOp(o) => write!(f, "{}", o),
                 Symbol::SExprOp(o) => write!(f, "{}", o),
+                Symbol::Identifier(s) => write!(f, "{}", s),
             },
             Expr::SExpr(sexpr) => {
                 write!(
