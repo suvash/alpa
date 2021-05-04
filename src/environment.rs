@@ -59,6 +59,11 @@ fn bind_global_core_fn(env: &Env, symbol: Symbol, func: CoreFn) {
 
 pub fn load_core_fns(env: &Env) {
     bind_global_core_fn(env, Symbol::ExprsOp(ExprsOp::Equal), core::exprs_equal);
+    bind_global_core_fn(
+        env,
+        Symbol::ExprsOp(ExprsOp::NotEqual),
+        core::exprs_not_equal,
+    );
     bind_global_core_fn(env, Symbol::NumOp(NumOp::Add), core::nums_add);
     bind_global_core_fn(env, Symbol::NumOp(NumOp::Subtract), core::nums_subtract);
     bind_global_core_fn(env, Symbol::NumOp(NumOp::Multiply), core::nums_multiply);

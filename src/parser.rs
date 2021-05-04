@@ -90,6 +90,7 @@ fn parse_exprs_op(pair: Pair<Rule>) -> Expr {
 
     let op = match pair.as_rule() {
         Rule::equal => ExprsOp::Equal,
+        Rule::not_equal => ExprsOp::NotEqual,
         _ => unreachable!(),
     };
 

@@ -14,8 +14,9 @@ number = @{ ( "+" | "-" )? ~ sankhya }
   sankhya = { anka+ }
 
 symbol = { exprs_op | numbers_op | qexpr_op | qexprs_op | sexpr_op | identifier }
-  exprs_op = { equal }
+  exprs_op = { equal | not_equal }
     equal  = { "==" } // बराबर
+    not_equal  = { "!=" } // बराबर नभएको
   numbers_op = { add | subtract | multiply | divide | gte | gt | lte | lt }
     add      = { "+" } // "जोड"
     subtract = { "-" } // "घटाऊ"

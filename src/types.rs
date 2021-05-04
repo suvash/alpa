@@ -7,12 +7,14 @@ use crate::ntypes::Sankhya;
 #[derive(Debug, PartialEq, Eq, Clone, Hash)]
 pub enum ExprsOp {
     Equal,
+    NotEqual,
 }
 
 impl fmt::Display for ExprsOp {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             ExprsOp::Equal => write!(f, "=="),
+            ExprsOp::NotEqual => write!(f, "!="),
         }
     }
 }

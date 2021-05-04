@@ -27,6 +27,13 @@ pub fn exprs_equal(env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
     }
 }
 
+pub fn exprs_not_equal(env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
+    match exprs_equal(env, exprs)? {
+        Expr::Bool(Boolean(b)) => Ok(Expr::Bool(Boolean(!b))),
+        _ => Ok(Expr::Bool(Boolean(true))),
+    }
+}
+
 macro_rules! nums_fn {
     ($fn_name:ident, $op:expr, $x:ident, $y:ident, $x_y_body:block) => {
         pub fn $fn_name(env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
