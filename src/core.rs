@@ -1,9 +1,13 @@
 use std::collections::HashMap;
+use std::fs;
 
 use crate::environment::{self, Env};
 use crate::evaluator;
 use crate::ntypes::Sankhya;
-use crate::types::{Boolean, Error, Expr, ExprsOp, Function, NumOp, QExprOp, QExprsOp, SExprOp};
+use crate::parser;
+use crate::types::{
+    Boolean, Error, Expr, ExprsOp, Function, NumOp, QExprOp, QExprsOp, SExprOp, Symbol,
+};
 
 pub type CoreFn = fn(&mut Env, &[Box<Expr>]) -> Result<Expr, Error>;
 
@@ -72,6 +76,45 @@ pub fn exprs_not_equal(env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error
     match exprs_equal(env, exprs)? {
         Expr::Bool(Boolean(b)) => Ok(Expr::Bool(Boolean(!b))),
         _ => Ok(Expr::Bool(Boolean(true))),
+    }
+}
+
+pub fn exprs_import(env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
+    match &exprs[..] {
+        [expr] => match &**expr {
+            Expr::Sym(Symbol::Identifier(target)) => {
+                let extension = "अ";
+                let filename = format!("{}.{}", target, extension);
+                match fs::read_to_string(filename) {
+                    Ok(contents) => {
+                        println!("{:?}", &contents);
+                        match parser::parse(&contents) {
+                            Err(pe) => {
+                                eprintln!("Could not parse :\n{:?}", pe);
+                                Err(Error::ParseError(String::from(&contents)))
+                            }
+                            Ok(Expr::SExpr(pexprs)) => {
+                                println!("Parsed : {:?}", &pexprs);
+
+                                for pexpr in pexprs.iter() {
+                                    let val = evaluator::eval(env, pexpr)?;
+                                    println!("{}", &val);
+                                }
+
+                                Ok(Expr::QExpr(vec![]))
+                            }
+                            Ok(_) => unreachable!(),
+                        }
+                    }
+                    Err(_) => Err(Error::ImportError(*expr.clone())),
+                }
+            }
+            x => Err(Error::NotAnIdentifier(x.clone())),
+        },
+        _ => Err(Error::InvalidNumberOfExprsArguments(
+            ExprsOp::Import,
+            exprs.len(),
+        )),
     }
 }
 

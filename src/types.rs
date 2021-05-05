@@ -9,6 +9,7 @@ pub enum ExprsOp {
     Equal,
     NotEqual,
     If,
+    Import,
 }
 
 impl fmt::Display for ExprsOp {
@@ -17,6 +18,7 @@ impl fmt::Display for ExprsOp {
             ExprsOp::Equal => write!(f, "=="),
             ExprsOp::NotEqual => write!(f, "!="),
             ExprsOp::If => write!(f, "यदि"),
+            ExprsOp::Import => write!(f, "आयात"),
         }
     }
 }
@@ -252,10 +254,13 @@ pub enum Error {
     InvalidNumberOfQExprsArguments(QExprsOp, usize),
     InvalidNumberOfSExprArguments(SExprOp, usize),
     EmptyQExpr(Expr),
+    ParseError(String),
+    ImportError(Expr),
     InvalidOp(Expr),
     NotABoolean(Expr),
     NotANumber(Expr),
     NotASymbol(Expr),
+    NotAnIdentifier(Expr),
     NotAQExpr(Expr),
     NotASExpr(Expr),
     UnboundSymbol(Symbol),

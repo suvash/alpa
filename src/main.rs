@@ -61,8 +61,7 @@ fn repl() {
 fn read_eval_print(env: &mut Env, line: &str) -> () {
     match parser::parse(line) {
         Err(e) => {
-            eprintln!("Could not parse");
-            eprintln!("{:?}", e);
+            eprintln!("Could not parse :\n{:?}", e);
         }
         Ok(expr) => {
             println!("Parsed : {:?}", &expr);
