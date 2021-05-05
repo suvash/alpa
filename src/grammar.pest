@@ -19,12 +19,13 @@ string = ${ "\"" ~ inner_string ~ "\"" }
              | "\\" ~ ( "\"" | "\\" ) }
 
 symbol = { exprs_op | numbers_op | qexpr_op | qexprs_op | sexpr_op | identifier }
-  exprs_op = { equal | not_equal | yadi | import | print }
+  exprs_op = { equal | not_equal | yadi | import | print | error }
     equal      = { "==" } // बराबर
     not_equal  = { "!=" } // बराबर नभएको
     yadi       = { "यदि" } // if is rust keyword
     import     = { "आयात" }
     print      = { "छाप" }
+    error      = { "समस्या" }
   numbers_op = { add | subtract | multiply | divide | gte | gt | lte | lt }
     add      = { "+" } // "जोड"
     subtract = { "-" } // "घटाऊ"

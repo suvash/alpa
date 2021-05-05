@@ -11,6 +11,7 @@ pub enum ExprsOp {
     If,
     Import,
     Print,
+    Error,
 }
 
 impl fmt::Display for ExprsOp {
@@ -21,6 +22,7 @@ impl fmt::Display for ExprsOp {
             ExprsOp::If => write!(f, "यदि"),
             ExprsOp::Import => write!(f, "आयात"),
             ExprsOp::Print => write!(f, "छाप"),
+            ExprsOp::Error => write!(f, "समस्या"),
         }
     }
 }
@@ -262,9 +264,11 @@ pub enum Error {
     NotABoolean(Expr),
     NotANumber(Expr),
     NotASymbol(Expr),
+    NotAString(Expr),
     NotAnIdentifier(Expr),
     NotAQExpr(Expr),
     NotASExpr(Expr),
     UnboundSymbol(Symbol),
     UnEqualDefList(Expr, Vec<Box<Expr>>),
+    ThrowError(String),
 }

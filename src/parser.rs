@@ -101,6 +101,7 @@ fn parse_exprs_op(pair: Pair<Rule>) -> Expr {
         Rule::yadi => ExprsOp::If,
         Rule::import => ExprsOp::Import,
         Rule::print => ExprsOp::Print,
+        Rule::error => ExprsOp::Error,
         _ => unreachable!(),
     };
 

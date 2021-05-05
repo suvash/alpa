@@ -125,6 +125,19 @@ pub fn exprs_print(_env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
     Ok(Expr::QExpr(vec![]))
 }
 
+pub fn exprs_error(_env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
+    match &exprs[..] {
+        [expr] => match &**expr {
+            Expr::Str(error) => Err(Error::ThrowError(error.to_string())),
+            x => Err(Error::NotAString(x.clone())),
+        },
+        _ => Err(Error::InvalidNumberOfExprsArguments(
+            ExprsOp::Error,
+            exprs.len(),
+        )),
+    }
+}
+
 macro_rules! nums_fn {
     ($fn_name:ident, $op:expr, $x:ident, $y:ident, $x_y_body:block) => {
         pub fn $fn_name(env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {

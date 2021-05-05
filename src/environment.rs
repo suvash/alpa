@@ -67,6 +67,7 @@ pub fn load_core_fns(env: &Env) {
     );
     bind_global_core_fn(env, Symbol::ExprsOp(ExprsOp::Import), core::exprs_import);
     bind_global_core_fn(env, Symbol::ExprsOp(ExprsOp::Print), core::exprs_print);
+    bind_global_core_fn(env, Symbol::ExprsOp(ExprsOp::Error), core::exprs_error);
     bind_global_core_fn(env, Symbol::NumOp(NumOp::Add), core::nums_add);
     bind_global_core_fn(env, Symbol::NumOp(NumOp::Subtract), core::nums_subtract);
     bind_global_core_fn(env, Symbol::NumOp(NumOp::Multiply), core::nums_multiply);
