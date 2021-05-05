@@ -65,3 +65,6 @@ sexpr = { "(" ~ expr* ~ ")"}
 qexpr = { "'(" ~ expr* ~ ")"}
 
 WHITESPACE = _{ " " | "\t" }
+
+COMMENT = _{ ";" ~ any_but_newline* }
+  any_but_newline = { !( "\r" | "\n") ~ ANY }
