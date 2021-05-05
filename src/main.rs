@@ -1,14 +1,34 @@
+use std::collections::HashMap;
+use std::env;
+
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
 
+use alpa::core;
 use alpa::environment::{self, Env};
 use alpa::evaluator;
 use alpa::parser;
-use std::collections::HashMap;
+use alpa::types::{Expr, Symbol};
 
 fn main() {
-    print_banner();
-    repl();
+    let args: Vec<String> = env::args().collect();
+    match &args[..] {
+        [_] => {
+            print_banner();
+            repl();
+        }
+        [_, f] => {
+            let mut env = env_with_core_fns();
+            let import_f: &str = f.split('.').collect::<Vec<&str>>().first().unwrap();
+            let import = vec![Box::new(Expr::Sym(Symbol::Identifier(String::from(
+                import_f,
+            ))))];
+            core::exprs_import(&mut env, &import);
+        }
+        _ => {
+            eprintln!("Invalid number of arguments.");
+        }
+    }
 }
 
 fn print_banner() {
@@ -19,7 +39,7 @@ fn print_banner() {
     println!();
 }
 
-fn repl_env() -> Env {
+fn env_with_core_fns() -> Env {
     let env = environment::new(HashMap::new(), None);
     environment::load_core_fns(&env);
 
@@ -32,7 +52,7 @@ fn repl() {
     if rl.load_history(&history_filename).is_err() {
         eprintln!("Could not find previous history.");
     }
-    let mut env = repl_env();
+    let mut env = env_with_core_fns();
     loop {
         let readline = rl.readline(">> ");
         match readline {
