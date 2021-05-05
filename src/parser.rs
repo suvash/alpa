@@ -50,6 +50,7 @@ fn parse_expression(pair: Pair<Rule>) -> Expr {
     match pair.as_rule() {
         Rule::boolean => parse_boolean(pair),
         Rule::number => parse_number(pair),
+        Rule::string => parse_string(pair),
         Rule::symbol => parse_symbol(pair),
         Rule::sexpr => parse_s_expression(pair),
         Rule::qexpr => parse_q_expression(pair),
@@ -69,6 +70,12 @@ fn parse_boolean(pair: Pair<Rule>) -> Expr {
 
 fn parse_number(pair: Pair<Rule>) -> Expr {
     Expr::Num(pair.as_str().parse::<Sankhya>().unwrap())
+}
+
+fn parse_string(pair: Pair<Rule>) -> Expr {
+    let pair = pair.into_inner().next().unwrap();
+
+    Expr::Str(String::from(pair.as_str()))
 }
 
 fn parse_symbol(pair: Pair<Rule>) -> Expr {

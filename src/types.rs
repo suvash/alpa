@@ -193,6 +193,7 @@ impl fmt::Display for Function {
 pub enum Expr {
     Bool(Boolean),
     Num(Sankhya),
+    Str(String),
     Sym(Symbol),
     SExpr(Vec<Box<Expr>>),
     QExpr(Vec<Box<Expr>>),
@@ -204,6 +205,7 @@ impl fmt::Display for Expr {
         match self {
             Expr::Bool(b) => write!(f, "{}", b),
             Expr::Num(n) => write!(f, "{}", n),
+            Expr::Str(s) => write!(f, "\"{}\"", s),
             Expr::Sym(s) => match s {
                 Symbol::ExprsOp(o) => write!(f, "{}", o),
                 Symbol::NumOp(o) => write!(f, "{}", o),

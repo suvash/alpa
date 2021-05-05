@@ -41,6 +41,7 @@ fn exprs_compare(env: &mut Env, expr1: &Expr, expr2: &Expr) -> Result<Expr, Erro
     match (expr1, expr2) {
         (Expr::Bool(b1), Expr::Bool(b2)) => Ok(Expr::Bool(Boolean(b1 == b2))),
         (Expr::Num(n1), Expr::Num(n2)) => Ok(Expr::Bool(Boolean(n1 == n2))),
+        (Expr::Str(s1), Expr::Str(s2)) => Ok(Expr::Bool(Boolean(s1 == s2))),
         (Expr::Sym(_), Expr::Sym(_)) => Ok(Expr::Bool(Boolean(
             evaluator::eval(env, expr1)? == evaluator::eval(env, expr2)?,
         ))),
