@@ -10,6 +10,7 @@ pub enum ExprsOp {
     NotEqual,
     If,
     Import,
+    Print,
 }
 
 impl fmt::Display for ExprsOp {
@@ -19,6 +20,7 @@ impl fmt::Display for ExprsOp {
             ExprsOp::NotEqual => write!(f, "!="),
             ExprsOp::If => write!(f, "यदि"),
             ExprsOp::Import => write!(f, "आयात"),
+            ExprsOp::Print => write!(f, "छाप"),
         }
     }
 }

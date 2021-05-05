@@ -100,6 +100,7 @@ fn parse_exprs_op(pair: Pair<Rule>) -> Expr {
         Rule::not_equal => ExprsOp::NotEqual,
         Rule::yadi => ExprsOp::If,
         Rule::import => ExprsOp::Import,
+        Rule::print => ExprsOp::Print,
         _ => unreachable!(),
     };
 

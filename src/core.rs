@@ -118,6 +118,13 @@ pub fn exprs_import(env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
     }
 }
 
+pub fn exprs_print(_env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
+    exprs.iter().for_each(|expr| {
+        println!("{}", &expr);
+    });
+    Ok(Expr::QExpr(vec![]))
+}
+
 macro_rules! nums_fn {
     ($fn_name:ident, $op:expr, $x:ident, $y:ident, $x_y_body:block) => {
         pub fn $fn_name(env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
