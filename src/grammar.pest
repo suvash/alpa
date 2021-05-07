@@ -54,7 +54,7 @@ symbol = { exprs_op | numbers_op | qexpr_op | qexprs_op | sexpr_op | identifier 
     // only picking valid नेपाली (nepali) parts, not the entire devanagari chart
     // including underscore
     chinha     = { "ँ" | "ं" | "ः" }
-    swar       = { "अ" | "आ" | "इ" | "ई" | "उ" | "ऊ" | "ए" | "ऐ" | "ओ" | "ओ" | "ऋ" }
+    swar       = { "अ" | "आ" | "इ" | "ई" | "उ" | "ऊ" | "ए" | "ऐ" | "ओ" | "औ" | "ऋ" }
     byanjan    = { "क" | "ख" | "ग" | "घ" | "ङ" | "च" | "छ" | "ज" | "झ" | "ञ" | "ट" | "ठ" | "ड" | "ढ" | "ण" | "त" | "थ" | "द" | "ध" | "न" | "प" | "फ" | "ब" | "भ" | "म" | "य" | "र" | "ल" | "व" | "श" | "ष" | "स" | "ह" }
     maatraa    = { "ा" | "ि" | "ी" | "ु" | "ू" | "ृ" | "े" | "ै" | "ो" | "ौ" }
     halanta    = { "्" }
