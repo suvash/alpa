@@ -9,6 +9,7 @@ pub enum ExprsOp {
     Equal,
     NotEqual,
     If,
+    List,
     Import,
     Print,
     Error,
@@ -20,6 +21,7 @@ impl fmt::Display for ExprsOp {
             ExprsOp::Equal => write!(f, "=="),
             ExprsOp::NotEqual => write!(f, "!="),
             ExprsOp::If => write!(f, "यदि"),
+            ExprsOp::List => write!(f, "सुची"),
             ExprsOp::Import => write!(f, "आयात"),
             ExprsOp::Print => write!(f, "छाप"),
             ExprsOp::Error => write!(f, "समस्या"),
@@ -96,14 +98,12 @@ impl fmt::Display for QExprsOp {
 
 #[derive(Debug, PartialEq, Eq, Clone, Hash)]
 pub enum SExprOp {
-    Quote,
     PrintEnv,
 }
 
 impl fmt::Display for SExprOp {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            SExprOp::Quote => write!(f, "उद्धरण"),
             SExprOp::PrintEnv => write!(f, "वातावरण"),
         }
     }

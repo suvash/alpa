@@ -59,6 +59,7 @@ fn bind_global_core_fn(env: &Env, symbol: Symbol, func: CoreFn) {
 
 pub fn load_core_fns(env: &Env) {
     bind_global_core_fn(env, Symbol::ExprsOp(ExprsOp::If), core::exprs_if);
+    bind_global_core_fn(env, Symbol::ExprsOp(ExprsOp::List), core::exprs_list);
     bind_global_core_fn(env, Symbol::ExprsOp(ExprsOp::Equal), core::exprs_equal);
     bind_global_core_fn(
         env,
@@ -90,7 +91,6 @@ pub fn load_core_fns(env: &Env) {
     bind_global_core_fn(env, Symbol::QExprsOp(QExprsOp::Def), core::qexprs_def);
     bind_global_core_fn(env, Symbol::QExprsOp(QExprsOp::Put), core::qexprs_put);
     bind_global_core_fn(env, Symbol::QExprsOp(QExprsOp::Lambda), core::qexprs_lambda);
-    bind_global_core_fn(env, Symbol::SExprOp(SExprOp::Quote), core::sexpr_quote);
     bind_global_core_fn(
         env,
         Symbol::SExprOp(SExprOp::PrintEnv),

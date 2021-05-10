@@ -5,9 +5,7 @@ use crate::environment::{self, Env};
 use crate::evaluator;
 use crate::ntypes::Sankhya;
 use crate::parser;
-use crate::types::{
-    Boolean, Error, Expr, ExprsOp, Function, NumOp, QExprOp, QExprsOp, SExprOp, Symbol,
-};
+use crate::types::{Boolean, Error, Expr, ExprsOp, Function, NumOp, QExprOp, QExprsOp, Symbol};
 
 pub type CoreFn = fn(&mut Env, &[Box<Expr>]) -> Result<Expr, Error>;
 
@@ -29,6 +27,14 @@ pub fn exprs_if(env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
             exprs.len(),
         )),
     }
+}
+
+pub fn exprs_list(env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
+    let mut list = vec![];
+    for expr in exprs {
+        list.push(Box::new(evaluator::eval(env, &**expr)?));
+    }
+    Ok(Expr::QExpr(list))
 }
 
 pub fn exprs_equal(env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
@@ -339,16 +345,6 @@ pub fn qexprs_lambda(env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> 
             QExprsOp::Lambda,
             exprs.len(),
         )),
-    }
-}
-
-pub fn sexpr_quote(_env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
-    match &exprs[..] {
-        [] => Err(Error::InvalidNumberOfSExprArguments(
-            SExprOp::Quote,
-            exprs.len(),
-        )),
-        _ => Ok(Expr::QExpr(exprs.to_vec())),
     }
 }
 

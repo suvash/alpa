@@ -99,6 +99,7 @@ fn parse_exprs_op(pair: Pair<Rule>) -> Expr {
         Rule::equal => ExprsOp::Equal,
         Rule::not_equal => ExprsOp::NotEqual,
         Rule::yadi => ExprsOp::If,
+        Rule::list => ExprsOp::List,
         Rule::import => ExprsOp::Import,
         Rule::print => ExprsOp::Print,
         Rule::error => ExprsOp::Error,
@@ -163,7 +164,6 @@ fn parse_sexpr_op(pair: Pair<Rule>) -> Expr {
     let pair = pair.into_inner().next().unwrap();
 
     let op = match pair.as_rule() {
-        Rule::quote => SExprOp::Quote,
         Rule::printenv => SExprOp::PrintEnv,
         _ => unreachable!(),
     };
