@@ -124,10 +124,10 @@ pub fn exprs_import(env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
     }
 }
 
-pub fn exprs_print(_env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
-    exprs.iter().for_each(|expr| {
-        println!("{}", &expr);
-    });
+pub fn exprs_print(env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
+    for expr in exprs {
+        println!("{}", &evaluator::eval(env, &**expr)?);
+    }
     Ok(Expr::QExpr(vec![]))
 }
 
