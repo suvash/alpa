@@ -92,26 +92,7 @@ pub fn exprs_import(env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
                 let extension = "अ";
                 let filename = format!("{}.{}", target, extension);
                 match fs::read_to_string(filename) {
-                    Ok(contents) => {
-                        println!("{:?}", &contents);
-                        match parser::parse(&contents) {
-                            Err(pe) => {
-                                eprintln!("Could not parse :\n{:?}", pe);
-                                Err(Error::ParseError(String::from(&contents)))
-                            }
-                            Ok(Expr::SExpr(pexprs)) => {
-                                println!("Parsed : {:?}", &pexprs);
-
-                                for pexpr in pexprs.iter() {
-                                    let val = evaluator::eval(env, pexpr)?;
-                                    println!("{}", &val);
-                                }
-
-                                Ok(Expr::QExpr(vec![]))
-                            }
-                            Ok(_) => unreachable!(),
-                        }
-                    }
+                    Ok(contents) => parse_and_eval_str(env, &contents),
                     Err(_) => Err(Error::ImportError(*expr.clone())),
                 }
             }
@@ -121,6 +102,26 @@ pub fn exprs_import(env: &mut Env, exprs: &[Box<Expr>]) -> Result<Expr, Error> {
             ExprsOp::Import,
             exprs.len(),
         )),
+    }
+}
+
+pub fn parse_and_eval_str(env: &mut Env, contents: &str) -> Result<Expr, Error> {
+    match parser::parse(contents) {
+        Err(pe) => {
+            eprintln!("Could not parse :\n{:?}", pe);
+            Err(Error::ParseError(String::from(contents)))
+        }
+        Ok(Expr::SExpr(pexprs)) => {
+            println!("Parsed : {:?}", &pexprs);
+
+            for pexpr in pexprs.iter() {
+                let val = evaluator::eval(env, pexpr)?;
+                println!("{}", &val);
+            }
+
+            Ok(Expr::QExpr(vec![]))
+        }
+        Ok(_) => unreachable!(),
     }
 }
 

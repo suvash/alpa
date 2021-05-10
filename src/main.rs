@@ -6,8 +6,6 @@ use rustyline::Editor;
 
 use alpa::core;
 use alpa::environment::{self, Env};
-use alpa::evaluator;
-use alpa::parser;
 use alpa::types::{Expr, Symbol};
 
 fn main() {
@@ -17,13 +15,9 @@ fn main() {
             print_banner();
             repl();
         }
-        [_, f] => {
-            let mut env = env_with_core_fns();
-            let import_f: &str = f.split('.').collect::<Vec<&str>>().first().unwrap();
-            let import = vec![Box::new(Expr::Sym(Symbol::Identifier(String::from(
-                import_f,
-            ))))];
-            core::exprs_import(&mut env, &import);
+        [_, arg1] => {
+            let mut env = env_with_stdlib_and_core_fns();
+            eval_import(&mut env, arg1);
         }
         _ => {
             eprintln!("Invalid number of arguments.");
@@ -39,9 +33,12 @@ fn print_banner() {
     println!();
 }
 
-fn env_with_core_fns() -> Env {
-    let env = environment::new(HashMap::new(), None);
+fn env_with_stdlib_and_core_fns() -> Env {
+    let stdlib_content = include_str!("प्रस्तावना.अ");
+    let mut env = environment::new(HashMap::new(), None);
+
     environment::load_core_fns(&env);
+    read_eval_print(&mut env, &stdlib_content);
 
     env
 }
@@ -52,7 +49,7 @@ fn repl() {
     if rl.load_history(&history_filename).is_err() {
         eprintln!("Could not find previous history.");
     }
-    let mut env = env_with_core_fns();
+    let mut env = env_with_stdlib_and_core_fns();
     loop {
         let readline = rl.readline(">> ");
         match readline {
@@ -78,25 +75,31 @@ fn repl() {
     rl.save_history(&history_filename).unwrap();
 }
 
-fn read_eval_print(env: &mut Env, line: &str) -> () {
-    match parser::parse(line) {
-        Err(e) => {
-            eprintln!("Could not parse :\n{:?}", e);
-        }
-        Ok(expr) => {
-            println!("Parsed : {:?}", &expr);
+fn eval_import(env: &mut Env, target: &str) -> () {
+    match target.split('.').collect::<Vec<&str>>()[..] {
+        [module, "अ"] => {
+            let m = vec![Box::new(Expr::Sym(Symbol::Identifier(String::from(
+                module,
+            ))))];
 
-            match evaluator::eval(env, &expr) {
-                Err(e) => {
-                    eprintln!("Could not eval");
-                    eprintln!("Eval Error : {:?}", e);
-                }
-
+            match core::exprs_import(env, &m) {
+                Err(e) => eprintln!("Error : {:?}", e),
                 Ok(expr) => {
-                    println!("Evaled : {:?}", &expr);
+                    println!("{:?}", &expr);
                     println!("{}", &expr);
                 }
             }
+        }
+        _ => eprintln!("अमान्य फाइल (हुनुपर्ने <फाइलनाम>.अ)"),
+    }
+}
+
+fn read_eval_print(env: &mut Env, line: &str) -> () {
+    match core::parse_and_eval_str(env, line) {
+        Err(e) => eprintln!("Error : {:?}", e),
+        Ok(expr) => {
+            println!("{:?}", &expr);
+            println!("{}", &expr);
         }
     }
 }
