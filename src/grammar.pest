@@ -36,9 +36,9 @@ symbol = { exprs_op | numbers_op | qexpr_op | qexprs_op | sexpr_op | identifier 
     gt       = { ">" } // ठुलो
     lte      = { "<=" } // सानो अथवा बराबर
     lt       = { "<" } // सानो
-  qexpr_op = { first | rest | len | eval }
-    first  = { "पहिलो" }
-    rest   = { "बाँकी" }
+  qexpr_op = { head | tail | len | eval }
+    head  = { "शिर" }
+    tail   = { "पुच्छर" }
     len    = { "वटा" }
     eval   = { "बिस्तार" }
   qexprs_op = { cons | join | def | put | lambda }

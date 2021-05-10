@@ -58,8 +58,8 @@ impl fmt::Display for NumOp {
 
 #[derive(Debug, PartialEq, Eq, Clone, Hash)]
 pub enum QExprOp {
-    First,
-    Rest,
+    Head,
+    Tail,
     Len,
     Eval,
 }
@@ -67,8 +67,8 @@ pub enum QExprOp {
 impl fmt::Display for QExprOp {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            QExprOp::First => write!(f, "पहिलो"),
-            QExprOp::Rest => write!(f, "बाँकी"),
+            QExprOp::Head => write!(f, "शिर"),
+            QExprOp::Tail => write!(f, "पुच्छर"),
             QExprOp::Len => write!(f, "वटा"),
             QExprOp::Eval => write!(f, "बिस्तार"),
         }

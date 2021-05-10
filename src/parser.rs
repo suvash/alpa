@@ -135,8 +135,8 @@ fn parse_qexpr_op(pair: Pair<Rule>) -> Expr {
     let pair = pair.into_inner().next().unwrap();
 
     let op = match pair.as_rule() {
-        Rule::first => QExprOp::First,
-        Rule::rest => QExprOp::Rest,
+        Rule::head => QExprOp::Head,
+        Rule::tail => QExprOp::Tail,
         Rule::len => QExprOp::Len,
         Rule::eval => QExprOp::Eval,
         _ => unreachable!(),

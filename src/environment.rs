@@ -82,8 +82,8 @@ pub fn load_core_fns(env: &Env) {
     );
     bind_global_core_fn(env, Symbol::NumOp(NumOp::LessThan), core::nums_lt);
     bind_global_core_fn(env, Symbol::NumOp(NumOp::LessThanOrEqual), core::nums_lte);
-    bind_global_core_fn(env, Symbol::QExprOp(QExprOp::First), core::qexpr_first);
-    bind_global_core_fn(env, Symbol::QExprOp(QExprOp::Rest), core::qexpr_rest);
+    bind_global_core_fn(env, Symbol::QExprOp(QExprOp::Head), core::qexpr_head);
+    bind_global_core_fn(env, Symbol::QExprOp(QExprOp::Tail), core::qexpr_tail);
     bind_global_core_fn(env, Symbol::QExprOp(QExprOp::Len), core::qexpr_len);
     bind_global_core_fn(env, Symbol::QExprOp(QExprOp::Eval), core::qexpr_eval);
     bind_global_core_fn(env, Symbol::QExprsOp(QExprsOp::Cons), core::qexprs_cons);

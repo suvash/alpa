@@ -212,14 +212,14 @@ macro_rules! qexpr_fn {
     };
 }
 
-qexpr_fn!(qexpr_first, QExprOp::First, env, qexpr, {
+qexpr_fn!(qexpr_head, QExprOp::Head, env, qexpr, {
     match qexpr.split_first() {
         Some((first, _)) => Ok(Expr::QExpr(vec![first.clone()])),
         None => Err(Error::EmptyQExpr(Expr::QExpr(qexpr.clone()))),
     }
 });
 
-qexpr_fn!(qexpr_rest, QExprOp::Rest, env, qexpr, {
+qexpr_fn!(qexpr_tail, QExprOp::Tail, env, qexpr, {
     match qexpr.split_first() {
         Some((_, rest)) => Ok(Expr::QExpr(rest.to_vec())),
         None => Err(Error::EmptyQExpr(Expr::QExpr(qexpr.clone()))),
