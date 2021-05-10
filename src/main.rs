@@ -38,7 +38,7 @@ fn env_with_stdlib_and_core_fns() -> Env {
     let mut env = environment::new(HashMap::new(), None);
 
     environment::load_core_fns(&env);
-    read_eval_print(&mut env, &stdlib_content);
+    read_eval(&mut env, &stdlib_content);
 
     env
 }
@@ -84,9 +84,9 @@ fn eval_import(env: &mut Env, target: &str) -> () {
 
             match core::exprs_import(env, &m) {
                 Err(e) => eprintln!("Error : {:?}", e),
-                Ok(expr) => {
-                    println!("{:?}", &expr);
-                    println!("{}", &expr);
+                Ok(_expr) => {
+                    // println!("{:?}", &expr);
+                    // println!("{}", &expr);
                 }
             }
         }
@@ -94,11 +94,18 @@ fn eval_import(env: &mut Env, target: &str) -> () {
     }
 }
 
+fn read_eval(env: &mut Env, line: &str) -> () {
+    match core::parse_and_eval_str(env, line) {
+        Err(e) => eprintln!("Error : {:?}", e),
+        Ok(_expr) => {}
+    }
+}
+
 fn read_eval_print(env: &mut Env, line: &str) -> () {
     match core::parse_and_eval_str(env, line) {
         Err(e) => eprintln!("Error : {:?}", e),
         Ok(expr) => {
-            println!("{:?}", &expr);
+            // println!("{:?}", &expr);
             println!("{}", &expr);
         }
     }

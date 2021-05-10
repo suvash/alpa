@@ -42,8 +42,6 @@ fn eval_lambda(
     let rest_sym = Symbol::Identifier("ऽ".to_string());
     match &*formals {
         [head_formals @ .., rest, rest_formal] if rest == &rest_sym => {
-            println!("{:?}' {:?}, {:?}", head_formals, rest_sym, rest_formal);
-
             match head_formals.len() <= args.len() {
                 true => {
                     let (args_to_bind, rest_args) = &args.split_at(head_formals.len());

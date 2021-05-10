@@ -112,14 +112,17 @@ pub fn parse_and_eval_str(env: &mut Env, contents: &str) -> Result<Expr, Error> 
             Err(Error::ParseError(String::from(contents)))
         }
         Ok(Expr::SExpr(pexprs)) => {
-            println!("Parsed : {:?}", &pexprs);
+            // println!("Parsed : {:?}", &pexprs);
+
+	    let mut result = vec![];
 
             for pexpr in pexprs.iter() {
                 let val = evaluator::eval(env, pexpr)?;
-                println!("{}", &val);
+		result.push(Box::new(val));
+                // println!("{}", &val);
             }
 
-            Ok(Expr::QExpr(vec![]))
+            Ok(Expr::QExpr(result))
         }
         Ok(_) => unreachable!(),
     }
